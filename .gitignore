@@ -1,0 +1,19 @@
+# Vivado 임시/로그 파일 무시
+*.log
+*.jou
+*.str
+*.pb
+*.os
+*.zip
+
+# 비바도 프로젝트 내부의 무거운 폴더 무시
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.gen/
+
+# 기타 임시 폴더
+.Xil/
+.cache/
