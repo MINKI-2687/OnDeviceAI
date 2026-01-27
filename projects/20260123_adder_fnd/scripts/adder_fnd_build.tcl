@@ -38,10 +38,10 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
-   "C:/kmk/OnDeviceAI_Git/projects/20260123_adder_fnd/rtl/fnd_controller.v" \
-   "C:/kmk/OnDeviceAI_Git/projects/20260123_adder_fnd/rtl/top_adder.v" \
-   "C:/kmk/OnDeviceAI_Git/projects/20260123_adder_fnd/xdc/Basys-3-Master.xdc" \
-   "C:/kmk/OnDeviceAI_Git/projects/20260123_adder_fnd/sim/tb_top_adder.v" \
+   [file normalize "${origin_dir}/../rtl/fnd_controller.v"] \
+   [file normalize "${origin_dir}/../rtl/top_adder.v"] \
+   [file normalize "${origin_dir}/../xdc/Basys-3-Master.xdc"] \
+   [file normalize "${origin_dir}/../sim/tb_top_adder.v"] \
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -53,7 +53,7 @@ proc checkRequiredFiles { origin_dir} {
   return $status
 }
 # Set the reference directory for source file relative paths (by default the value is script directory path)
-set origin_dir "."
+set origin_dir [file normalize [file dirname [info script]]]
 
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {
