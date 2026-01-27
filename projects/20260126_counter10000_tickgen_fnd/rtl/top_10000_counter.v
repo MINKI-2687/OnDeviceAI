@@ -11,8 +11,8 @@ module top_10000_counter (
     wire w_tick_10hz;
 
     tick_gen_10hz U_TICK_GEN (
-        .clk(clk),
-        .reset(reset),
+        .clk        (clk),
+        .reset      (reset),
         .o_tick_10hz(w_tick_10hz)
     );
 

@@ -27,9 +27,9 @@
 #
 # 3. The following remote source files that were added to the original project:-
 #
-#    "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/rtl/full_adder_4bit.v"
-#    "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/xdc/Basys-3-Master.xdc"
-#    "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/sim/tb_full_adder_4bit.v"
+#    "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/rtl/full_adder_4bit.v"
+#    "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/xdc/Basys-3-Master.xdc"
+#    "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/sim/tb_full_adder_4bit.v"
 #
 #*****************************************************************************************
 
@@ -37,9 +37,9 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
-   "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/rtl/full_adder_4bit.v" \
-   "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/xdc/Basys-3-Master.xdc" \
-   "C:/OnDeviceAI_Git/homework/HW01_4bit_full_adder/sim/tb_full_adder_4bit.v" \
+   "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/rtl/full_adder_4bit.v" \
+   "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/xdc/Basys-3-Master.xdc" \
+   "C:/kmk/OnDeviceAI_Git/homework/HW01_4bit_full_adder/sim/tb_full_adder_4bit.v" \
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
