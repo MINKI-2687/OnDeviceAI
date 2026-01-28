@@ -34,7 +34,7 @@ module tb_top_adder ();
             for (j = 0; j < 256; j = j + 1) begin
                 a = i;
                 b = j;
-                #10;
+                #1_000_000;
             end
         end
         /*$stop;

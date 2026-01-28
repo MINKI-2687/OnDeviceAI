@@ -60,7 +60,7 @@ module clk_div (
 );
 
     //reg [16:0] counter_r;
-    reg [$clog2(100_000):0] counter_r;
+    reg [$clog2(100_000)-1:0] counter_r;
 
     always @(posedge clk, posedge reset) begin
         if (reset) begin
