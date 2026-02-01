@@ -192,10 +192,11 @@ module decoder_2x4 (
 
     always @(digit_sel) begin
         case (digit_sel)
-            2'b00: decoder_out = 4'b1110;
-            2'b01: decoder_out = 4'b1101;
-            2'b10: decoder_out = 4'b1011;
-            2'b11: decoder_out = 4'b0111;
+            2'b00:   decoder_out = 4'b1110;
+            2'b01:   decoder_out = 4'b1101;
+            2'b10:   decoder_out = 4'b1011;
+            2'b11:   decoder_out = 4'b0111;
+            default: decoder_out = 4'b1111;
         endcase
     end
 endmodule
@@ -215,14 +216,15 @@ module mux_8x1 (
 
     always @(*) begin
         case (sel)
-            3'b000: mux_out = digit_1;
-            3'b001: mux_out = digit_10;
-            3'b010: mux_out = digit_100;
-            3'b011: mux_out = digit_1000;
-            3'b100: mux_out = digit_dot_1;
-            3'b101: mux_out = digit_dot_10;
-            3'b110: mux_out = digit_dot_100;
-            3'b111: mux_out = digit_dot_1000;
+            3'b000:  mux_out = digit_1;
+            3'b001:  mux_out = digit_10;
+            3'b010:  mux_out = digit_100;
+            3'b011:  mux_out = digit_1000;
+            3'b100:  mux_out = digit_dot_1;
+            3'b101:  mux_out = digit_dot_10;
+            3'b110:  mux_out = digit_dot_100;
+            3'b111:  mux_out = digit_dot_1000;
+            default: mux_out = 4'hF;
         endcase
     end
 endmodule

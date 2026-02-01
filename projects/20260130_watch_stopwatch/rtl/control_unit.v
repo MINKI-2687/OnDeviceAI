@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 
-module control_unit (
-    input clk,
-    input reset,
-    input i_mode,
-    input i_run_stop,
-    input i_clear,
-    output o_mode,
+module sw_control_unit (
+    input      clk,
+    input      reset,
+    input      i_mode,
+    input      i_run_stop,
+    input      i_clear,
+    output     o_mode,
     output reg o_run_stop,
     output reg o_clear
 );
 
-    localparam STOP = 2'b00, RUN = 2'b01, CLEAR = 2'b10;
+    parameter STOP = 2'b00, RUN = 2'b01, CLEAR = 2'b10;
 
     // reg variable
     reg [1:0] current_st, next_st;
@@ -48,6 +48,93 @@ module control_unit (
                 o_clear = 1'b0;
                 if (i_run_stop) begin
                     next_st = STOP;
+                end else if (i_clear) begin
+                    next_st = CLEAR;
+                end
+            end
+            CLEAR: begin
+                o_run_stop = 1'b0;
+                o_clear = 1'b1;
+                next_st = STOP;
+            end
+        endcase
+    end
+
+endmodule
+
+module watch_control_unit (
+    input       clk,
+    input       reset,
+    input       i_setting,
+    input       i_btn_up,
+    input       i_btn_down,
+    input       i_mode,
+    input       i_run_stop,
+    input       i_clear,
+    input [3:0] i_digit_sel, // 자릿수 선택 스위치용
+
+    output     o_mode,
+    output reg o_run_stop,
+    output reg o_clear,
+
+    output reg o_hour_digit,
+    output reg o_min_digit,
+    output reg o_sec_digit,
+    output reg o_msec_digit
+);
+
+    parameter STOP = 2'b00, RUN = 2'b01, CLEAR = 2'b10;
+
+    // reg variable
+    reg [1:0] current_st, next_st;
+
+    assign o_mode = (current_st == STOP) ? i_btn_down : i_mode; // 설정 모드 일때는 내려가는 btn, 평소에는 그냥 감소하는 btn
+
+    // state register SL
+    always @(posedge clk, posedge reset) begin
+        if (reset) begin
+            current_st <= STOP;
+        end else begin
+            current_st <= next_st;
+        end
+    end
+
+    // next_st CL
+    always @(*) begin
+        next_st = current_st;  // init state
+        o_run_stop = 1'b0;
+        o_clear = 1'b0;
+        o_hour_digit = 1'b0;
+        o_min_digit = 1'b0;
+        o_sec_digit = 1'b0;
+        o_msec_digit = 1'b0;
+        case (current_st)
+            // moore output
+            STOP: begin
+                o_run_stop = 1'b0;
+                o_clear = 1'b0;
+                if (i_btn_up || i_btn_down) begin
+                    if (i_digit_sel[3])
+                        o_hour_digit = 1'b1;  // sw[15] 켜지면 hour 수정
+                    else if (i_digit_sel[2])
+                        o_min_digit = 1'b1;  // sw[14] 켜지면 min 수정
+                    else if (i_digit_sel[1])
+                        o_sec_digit = 1'b1;  // sw[13] 켜지면 sec 수정
+                    else if (i_digit_sel[0])
+                        o_msec_digit = 1'b1;  // sw[12] 켜지면 msec 수정
+                end else if (!i_setting) begin
+                    next_st = RUN;  // 설정 모드 해제 시 다시 작동
+                end else if (i_clear) begin
+                    next_st = CLEAR;
+                end
+            end
+            RUN: begin
+                o_run_stop = 1'b1;
+                o_clear = 1'b0;
+                if (i_setting) begin
+                    next_st = STOP;
+                end else if (i_clear) begin
+                    next_st = CLEAR;
                 end
             end
             CLEAR: begin
