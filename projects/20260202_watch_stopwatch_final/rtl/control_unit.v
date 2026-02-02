@@ -88,7 +88,8 @@ module watch_control_unit (
     // reg variable
     reg [1:0] current_st, next_st;
 
-    assign o_mode = (current_st == STOP) ? i_btn_down : i_mode; // 설정 모드 일때는 내려가는 btn, 평소에는 그냥 감소하는 btn
+    // 설정 모드 일때는 내려가는 btn, 평소에는 그냥 감소하는 btn
+    assign o_mode = (current_st == STOP) ? i_btn_down : i_mode; 
 
     // state register SL
     always @(posedge clk, posedge reset) begin
