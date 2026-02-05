@@ -96,7 +96,6 @@ module top_stopwatch_watch (
         .o_sec_digit (w_s_digit),
         .o_msec_digit(w_ms_digit)
 
-
     );
 
     sw_control_unit U_SW_CONTROL_UNIT (
