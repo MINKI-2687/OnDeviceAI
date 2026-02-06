@@ -17,10 +17,6 @@ module top_stopwatch_watch (
     // btn
     wire o_btn_run_stop, o_btn_clear, o_btn_up, o_btn_down;
 
-    // demux
-    wire w_watch_up, w_watch_down, w_watch_run, w_watch_clear;
-    wire w_sw_run, w_sw_clear;
-
     // control watch
     wire w_ctrl_watch_mode, w_ctrl_watch_run_stop, w_ctrl_watch_clear;
     wire w_h_digit, w_m_digit, w_s_digit, w_ms_digit;
@@ -61,33 +57,17 @@ module top_stopwatch_watch (
         .o_btn(o_btn_down)
     );
 
-    sw_demux U_SW_DEMUX (
-        .sel    (sw[1]),           // choice watch or stopwatch
-        .i_btn_r(o_btn_run_stop),  // run_stop
-        .i_btn_l(o_btn_clear),     // clear
-        .i_btn_u(o_btn_up),        // up
-        .i_btn_d(o_btn_down),      // down
-
-        // setting mode
-        .o_watch_run  (w_watch_run),
-        .o_watch_clear(w_watch_clear),
-        .o_watch_up   (w_watch_up),
-        .o_watch_down (w_watch_down),
-
-        .o_sw_run_stop(w_sw_run),
-        .o_sw_clear   (w_sw_clear)
-    );
-
     watch_control_unit U_WATCH_CONTROL_UNIT (
         .clk         (clk),
         .reset       (reset),
         .i_setting   (sw[3]),
         .i_digit_sel (sw[15:12]),
-        .i_btn_up    (w_watch_up),             // up setting
-        .i_btn_down  (w_watch_down),           // down setting
+        .i_btn_up    (o_btn_up),               // up setting
+        .i_btn_down  (o_btn_down),             // down setting
         .i_mode      (sw[0]),
-        .i_run       (w_watch_run),
-        .i_clear     (w_watch_clear),
+        .i_mode_sel  (sw[1]),
+        .i_run       (o_btn_run_stop),
+        .i_clear     (o_btn_clear),
         .o_mode      (w_ctrl_watch_mode),
         .o_run       (w_ctrl_watch_run_stop),
         .o_clear     (w_ctrl_watch_clear),
@@ -95,15 +75,15 @@ module top_stopwatch_watch (
         .o_min_digit (w_m_digit),
         .o_sec_digit (w_s_digit),
         .o_msec_digit(w_ms_digit)
-
     );
 
     sw_control_unit U_SW_CONTROL_UNIT (
         .clk       (clk),
         .reset     (reset),
         .i_mode    (sw[0]),
-        .i_run_stop(w_sw_run),
-        .i_clear   (w_sw_clear),
+        .i_mode_sel(sw[1]),
+        .i_run_stop(o_btn_run_stop),
+        .i_clear   (o_btn_clear),
         .o_mode    (w_ctrl_sw_mode),
         .o_run_stop(w_ctrl_sw_run_stop),
         .o_clear   (w_ctrl_sw_clear)
@@ -154,35 +134,6 @@ module top_stopwatch_watch (
         .fnd_digit  (fnd_digit),
         .fnd_data   (fnd_data)
     );
-
-endmodule
-
-module sw_demux (
-    input sel,  // choice watch or stopwatch
-    input i_btn_r,  // run_stop
-    input i_btn_l,  // clear
-    input i_btn_u,  // up
-    input i_btn_d,  // down
-
-    output o_watch_run,
-    output o_watch_clear,
-    // setting mode
-    output o_watch_up,
-    output o_watch_down,
-
-    output o_sw_run_stop,
-    output o_sw_clear
-);
-
-    // 시계 모드(sel=1): 상/하 버튼을 설정용으로 보냄, sw[1]
-    assign o_watch_run   = (sel) ? i_btn_r : 1'b0;
-    assign o_watch_clear = (sel) ? i_btn_l : 1'b0;
-    assign o_watch_up    = (sel) ? i_btn_u : 1'b0;
-    assign o_watch_down  = (sel) ? i_btn_d : 1'b0;
-
-    // 스톱워치 모드(sel=0): 오른쪽 버튼을 실행/정지용으로 보냄, sw[1]
-    assign o_sw_run_stop = (!sel) ? i_btn_r : 1'b0;
-    assign o_sw_clear    = (!sel) ? i_btn_l : 1'b0;
 
 endmodule
 

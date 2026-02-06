@@ -3,6 +3,7 @@
 module sw_control_unit (
     input      clk,
     input      reset,
+    input      i_mode_sel,
     input      i_mode,
     input      i_run_stop,
     input      i_clear,
@@ -29,35 +30,31 @@ module sw_control_unit (
 
     // next_st CL
     always @(*) begin
-        next_st = current_st;  // init state
-        o_run_stop = 1'b0;
-        o_clear = 1'b0;
-        case (current_st)
-            STOP: begin
-                // moore output
-                o_run_stop = 1'b0;
-                o_clear = 1'b0;
-                if (i_run_stop) begin
-                    next_st = RUN;
-                end else if (i_clear) begin
-                    next_st = CLEAR;
+        next_st    = current_st;  // init state
+        o_run_stop = (current_st == RUN) ? 1'b1 : 1'b0;
+        o_clear    = (current_st == CLEAR) ? 1'b1 : 1'b0;
+        if (!i_mode_sel) begin
+            case (current_st)
+                STOP: begin
+                    // moore output
+                    if (i_run_stop) begin
+                        next_st = RUN;
+                    end else if (i_clear) begin
+                        next_st = CLEAR;
+                    end
                 end
-            end
-            RUN: begin
-                o_run_stop = 1'b1;
-                o_clear = 1'b0;
-                if (i_run_stop) begin
+                RUN: begin
+                    if (i_run_stop) begin
+                        next_st = STOP;
+                    end else if (i_clear) begin
+                        next_st = CLEAR;
+                    end
+                end
+                CLEAR: begin
                     next_st = STOP;
-                end else if (i_clear) begin
-                    next_st = CLEAR;
                 end
-            end
-            CLEAR: begin
-                o_run_stop = 1'b0;
-                o_clear = 1'b1;
-                next_st = STOP;
-            end
-        endcase
+            endcase
+        end
     end
 
 endmodule
@@ -70,6 +67,7 @@ module watch_control_unit (
     input       i_btn_up,
     input       i_btn_down,
     input       i_mode,
+    input       i_mode_sel,
     input       i_clear,
     input [3:0] i_digit_sel, // 자릿수 선택 스위치용
 
@@ -89,7 +87,7 @@ module watch_control_unit (
     reg [1:0] current_st, next_st;
 
     // 설정 모드 일때는 내려가는 btn, 평소에는 그냥 감소하는 btn
-    assign o_mode = (current_st == STOP) ? i_btn_down : i_mode; 
+    assign o_mode = (current_st == STOP) ? i_btn_down : i_mode;
 
     // state register SL
     always @(posedge clk, posedge reset) begin
@@ -102,57 +100,52 @@ module watch_control_unit (
 
     // next_st CL
     always @(*) begin
-        next_st = current_st;  // init state
-        o_run = 1'b0;
-        o_clear = 1'b0;
+        next_st      = current_st;  // init state
+        o_run        = (current_st == RUN) ? 1'b1 : 1'b0;
+        o_clear      = (current_st == CLEAR) ? 1'b1 : 1'b0;
         o_hour_digit = 1'b0;
-        o_min_digit = 1'b0;
-        o_sec_digit = 1'b0;
+        o_min_digit  = 1'b0;
+        o_sec_digit  = 1'b0;
         o_msec_digit = 1'b0;
-        case (current_st)
-            // moore output
-            IDLE: begin
-                o_run = 1'b0;
-                if (i_setting) begin
-                    next_st = STOP;
-                end else if (i_run) begin
-                    next_st = RUN;
+        if (i_mode_sel) begin
+            case (current_st)
+                // moore output
+                IDLE: begin
+                    if (i_setting) begin
+                        next_st = STOP;
+                    end else if (i_run) begin
+                        next_st = RUN;
+                    end
                 end
-            end
-            STOP: begin
-                o_run   = 1'b0;
-                o_clear = 1'b0;
-                if (i_btn_up || i_btn_down) begin
-                    if (i_digit_sel[3])
-                        o_hour_digit = 1'b1;  // sw[15] 켜지면 hour 수정
-                    else if (i_digit_sel[2])
-                        o_min_digit = 1'b1;  // sw[14] 켜지면 min 수정
-                    else if (i_digit_sel[1])
-                        o_sec_digit = 1'b1;  // sw[13] 켜지면 sec 수정
-                    else if (i_digit_sel[0])
-                        o_msec_digit = 1'b1;  // sw[12] 켜지면 msec 수정
-                end else if (!i_setting) begin
-                    next_st = RUN;  // 설정 모드 해제 시 다시 작동
-                end else if (i_clear) begin
-                    next_st = CLEAR;
+                STOP: begin
+                    if (i_btn_up || i_btn_down) begin
+                        if (i_digit_sel[3])
+                            o_hour_digit = 1'b1;  // sw[15] 켜지면 hour 수정
+                        else if (i_digit_sel[2])
+                            o_min_digit = 1'b1;  // sw[14] 켜지면 min 수정
+                        else if (i_digit_sel[1])
+                            o_sec_digit = 1'b1;  // sw[13] 켜지면 sec 수정
+                        else if (i_digit_sel[0])
+                            o_msec_digit = 1'b1;  // sw[12] 켜지면 msec 수정
+                    end else if (!i_setting) begin
+                        next_st = RUN;  // 설정 모드 해제 시 다시 작동
+                    end else if (i_clear) begin
+                        next_st = CLEAR;
+                    end
                 end
-            end
-            RUN: begin
-                o_run   = 1'b1;
-                o_clear = 1'b0;
-                if (i_setting) begin
-                    next_st = STOP;
-                end else if (i_clear) begin
-                    next_st = CLEAR;
+                RUN: begin
+                    if (i_setting) begin
+                        next_st = STOP;
+                    end else if (i_clear) begin
+                        next_st = CLEAR;
+                    end
                 end
-            end
-            CLEAR: begin
-                o_run   = 1'b0;
-                o_clear = 1'b1;
-                next_st = STOP; // STOP이지만 실제 보드에선 바로 동작한다.
-                // 그 이유는 stop으로 가자마자 setting이 0인 조건을 발견하여 RUN 상태로 가기 때문
-            end
-        endcase
+                CLEAR: begin
+                    next_st = STOP; // STOP이지만 실제 보드에선 바로 동작한다.
+                    // 그 이유는 stop으로 가자마자 setting이 0인 조건을 발견하여 RUN 상태로 가기 때문
+                end
+            endcase
+        end
     end
 
 endmodule
