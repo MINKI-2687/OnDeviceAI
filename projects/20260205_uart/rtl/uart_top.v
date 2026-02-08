@@ -1,38 +1,31 @@
 `timescale 1ns / 1ps
 
 module uart_top (
-    input  clk,
-    input  rst,
-    //input        btn_down,
-    input  uart_rx,
-    output uart_tx
+    input        clk,
+    input        rst,
+    input        uart_rx,
+    output       uart_tx,
+    output [7:0] rx_data,
+    output       rx_done
 );
 
-    wire w_b_tick, w_rx_done;
-    wire [7:0] w_rx_data;
-
-    btn_debounce U_BD_TX_START (
-        .clk  (clk),
-        .reset(rst),
-        .i_btn(btn_down),
-        .o_btn(w_tx_start)
-    );
+    wire w_b_tick;
 
     uart_rx U_UART_RX (
         .clk    (clk),
         .rst    (rst),
         .rx     (uart_rx),
         .b_tick (w_b_tick),
-        .rx_data(w_rx_data),
-        .rx_done(w_rx_done)
+        .rx_data(rx_data),
+        .rx_done(rx_done)
     );
 
     uart_tx U_UART_TX (
         .clk     (clk),
         .rst     (rst),
-        .tx_start(w_rx_done),
+        .tx_start(rx_done),
         .b_tick  (w_b_tick),
-        .tx_data (w_rx_data),
+        .tx_data (rx_data),
         .tx_busy (),
         .tx_done (),
         .uart_tx (uart_tx)

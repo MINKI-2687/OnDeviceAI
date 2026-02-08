@@ -72,13 +72,3 @@ module btn_debounce (
     assign o_btn = debounce & (~edge_reg);
 
 endmodule
-
-
-
-
-
-
-
-
-
-
