@@ -51,7 +51,7 @@ module uart_rx (
     localparam IDLE = 2'd0, START = 2'd1, DATA = 2'd2, STOP = 2'd3;
 
     reg [1:0] c_state, n_state;
-    reg [4:0] b_tick_cnt_reg, b_tick_cnt_next;
+    reg [3:0] b_tick_cnt_reg, b_tick_cnt_next;
     reg [2:0] bit_cnt_reg, bit_cnt_next;
     reg done_reg, done_next;
     reg [7:0] buf_reg, buf_next;
@@ -63,7 +63,7 @@ module uart_rx (
     always @(posedge clk, posedge rst) begin
         if (rst) begin
             c_state        <= 2'd0;
-            b_tick_cnt_reg <= 5'd0;
+            b_tick_cnt_reg <= 4'd0;
             bit_cnt_reg    <= 3'd0;
             done_reg       <= 1'b0;
             buf_reg        <= 8'd0;
@@ -86,9 +86,9 @@ module uart_rx (
         case (c_state)
             IDLE: begin
                 bit_cnt_next    = 3'd0;
-                b_tick_cnt_next = 5'd0;
+                b_tick_cnt_next = 4'd0;
                 done_next       = 1'b0;
-                if (b_tick & !rx) begin
+                if (b_tick && !rx) begin
                     buf_next = 8'd0;
                     n_state  = START;
                 end
@@ -96,7 +96,7 @@ module uart_rx (
             START: begin
                 if (b_tick) begin
                     if (b_tick_cnt_reg == 4'd7) begin
-                        b_tick_cnt_next = 5'd0;
+                        b_tick_cnt_next = 4'd0;
                         n_state         = DATA;
                     end else begin
                         b_tick_cnt_next = b_tick_cnt_reg + 1;
@@ -106,7 +106,7 @@ module uart_rx (
             DATA: begin
                 if (b_tick) begin
                     if (b_tick_cnt_reg == 4'd15) begin
-                        b_tick_cnt_next = 5'd0;
+                        b_tick_cnt_next = 4'd0;
                         buf_next = {rx, buf_reg[7:1]};
                         if (bit_cnt_reg == 7) begin
                             n_state = STOP;
@@ -273,7 +273,7 @@ module baud_tick (
     always @(posedge clk, posedge rst) begin
         if (rst) begin
             counter_reg <= 0;
-            b_tick <= 1'b0;
+            b_tick      <= 1'b0;
         end else begin
             counter_reg <= counter_reg + 1;
             if (counter_reg == F_COUNT - 1) begin
