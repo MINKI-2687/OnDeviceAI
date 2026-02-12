@@ -2,7 +2,7 @@
 
 module btn_debounce (
     input  clk,
-    input  reset,
+    input  rst,
     input  i_btn,
     output o_btn
 );
@@ -17,8 +17,8 @@ module btn_debounce (
 
     reg clk_100khz_reg;
 
-    always @(posedge clk, posedge reset) begin
-        if (reset) begin
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
             counter_reg <= 0;
             clk_100khz_reg <= 1'b0;
         end else begin
@@ -38,8 +38,8 @@ module btn_debounce (
     wire debounce;
 
     // SL
-    always @(posedge clk_100khz_reg, posedge reset) begin
-        if (reset) begin
+    always @(posedge clk_100khz_reg, posedge rst) begin
+        if (rst) begin
             //debounce_reg <= 0;
             q_reg <= 0;
         end else begin
@@ -60,8 +60,8 @@ module btn_debounce (
     reg edge_reg;
 
     // edge detection
-    always @(posedge clk, posedge reset) begin
-        if (reset) begin
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
             edge_reg <= 1'b0;
         end else begin
             edge_reg <= debounce;
