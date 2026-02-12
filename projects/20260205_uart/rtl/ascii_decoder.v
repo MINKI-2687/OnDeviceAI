@@ -89,5 +89,4 @@ module ascii_decoder (
             end
         endcase
     end
-
 endmodule
