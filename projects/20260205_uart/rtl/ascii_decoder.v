@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+/*`timescale 1ns / 1ps
 
 module ascii_decoder (
     input        clk,
@@ -89,4 +89,35 @@ module ascii_decoder (
             end
         endcase
     end
+endmodule*/
+
+`timescale 1ns / 1ps
+
+module ascii_decoder (
+    input        clk,
+    input        rst,
+    input  [7:0] rx_data,
+    input        rx_done,
+    // from uart input (r, l, u, d)
+    output       uart_btn_r,          // run_stop
+    output       uart_btn_l,          // clear
+    output       uart_btn_u,          // up
+    output       uart_btn_d,          // down
+    // from uart input (sw[0], [1], [2])
+    output       uart_sw_mode,
+    output       uart_sw_sel_mode,
+    output       uart_sw_sel_display
+);
+    // 1. 버튼 로직 (rx_done이 1일 때만 유효함)
+    assign uart_btn_r          = (rx_done && (rx_data == 8'h72));  // 'r'
+    assign uart_btn_l          = (rx_done && (rx_data == 8'h6C));  // 'l'
+    assign uart_btn_u          = (rx_done && (rx_data == 8'h75));  // 'u'
+    assign uart_btn_d          = (rx_done && (rx_data == 8'h64));  // 'd'
+
+    // 2. 스위치 로직 (조합 회로에서는 '상태 저장'이 불가능함)
+    assign uart_sw_mode        = (rx_done && (rx_data == 8'h30));  // '0'
+    assign uart_sw_sel_mode    = (rx_done && (rx_data == 8'h31));  // '1'
+    assign uart_sw_sel_display = (rx_done && (rx_data == 8'h32));  // '2'
+
+>>>>>>> d2ee0554d109c16b0e57a013a8a23dfe10273b19
 endmodule
