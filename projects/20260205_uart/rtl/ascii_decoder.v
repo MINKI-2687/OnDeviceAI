@@ -119,5 +119,4 @@ module ascii_decoder (
     assign uart_sw_sel_mode    = (rx_done && (rx_data == 8'h31));  // '1'
     assign uart_sw_sel_display = (rx_done && (rx_data == 8'h32));  // '2'
 
->>>>>>> d2ee0554d109c16b0e57a013a8a23dfe10273b19
 endmodule
