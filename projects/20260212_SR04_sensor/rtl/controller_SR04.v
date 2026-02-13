@@ -1,13 +1,13 @@
 `timescale 1ns / 1ps
 
 module controller_SR04 (
-    input         clk,
-    input         rst,
-    input         btn_r,       // start
-    input         i_tick_1us,
-    input         echo,
-    output        o_trigger,
-    output [23:0] distance
+    input                    clk,
+    input                    rst,
+    input                    btn_r,       // start
+    input                    i_tick_1us,
+    input                    echo,
+    output                   o_trigger,
+    output [$clog2(400)-1:0] distance
 );
 
     parameter IDLE = 2'd0, START = 2'd1;
@@ -15,24 +15,33 @@ module controller_SR04 (
 
     reg [1:0] c_state, n_state;
     reg [3:0] trig_cnt_reg, trig_cnt_next;
-    reg [23:0] echo_time_reg, echo_time_next;
-    reg [23:0] distance_reg, distance_next;
+    reg [$clog2(23200)-1:0] echo_time_reg, echo_time_next;
+    reg [$clog2(400)-1:0] distance_reg, distance_next;
+
+    reg sync_echo_1, sync_echo_2;
 
     assign o_trigger = (c_state == START) ? 1'b1 : 1'b0;
     assign distance  = distance_reg;
 
+    // echo synchronizer
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            sync_echo_1 <= 0;
+            sync_echo_2 <= 0;
+        end else begin
+            sync_echo_1 <= echo;
+            sync_echo_2 <= sync_echo_1;
+        end
+    end
+
     // state register
     always @(posedge clk, posedge rst) begin
         if (rst) begin
-            c_state       <= IDLE;
-            trig_cnt_reg  <= 0;
-            echo_time_reg <= 0;
-            distance_reg  <= 0;
+            c_state      <= IDLE;
+            distance_reg <= 0;
         end else begin
-            c_state       <= n_state;
-            trig_cnt_reg  <= trig_cnt_next;
-            echo_time_reg <= echo_time_next;
-            distance_reg  <= distance_next;
+            c_state      <= n_state;
+            distance_reg <= distance_next;
         end
     end
 
@@ -61,14 +70,14 @@ module controller_SR04 (
                 end
             end
             WAIT: begin
-                if (echo) begin
+                if (sync_echo_2) begin
                     n_state = DISTANCE;
                 end
             end
             DISTANCE: begin
-                if (!echo) begin
+                if (!sync_echo_2) begin
                     n_state = IDLE;
-                    distance_next = (echo_time_reg * 1131) >> 16; // 1/58 -> 0.0172, 0.0172 * 65536 한 뒤, 비트 shift >> 16
+                    distance_next = (echo_time_reg * 1130) >> 16; // 1/58 -> 0.0172, 0.0172 * 65536 한 뒤, 비트 shift >> 16
                     //distance_next = echo_time_reg / 58;
                 end else begin
                     if (i_tick_1us) begin

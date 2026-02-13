@@ -9,7 +9,9 @@ module tb_controller_SR04 ();
     wire        o_trigger;
     wire [23:0] distance;
 
-    controller_SR04 dut (
+    wire        w_o_btn;
+
+    controller_SR04 CNTL_dut (
         .clk       (clk),
         .rst       (rst),
         .btn_r     (btn_r),
@@ -19,7 +21,23 @@ module tb_controller_SR04 ();
         .distance  (distance)
     );
 
+    btn_debounce BD_dut (
+        .clk  (clk),
+        .rst  (rst),
+        .i_btn(btn_r),
+        .o_btn(w_o_btn)
+    );
+
     always #5 clk = ~clk;
+
+    task push_btn_r;
+        begin
+            btn_r = 1;
+            #100_000;
+            btn_r = 0;
+            #100_000;
+        end
+    endtask
 
     initial begin
         i_tick_1us = 0;
@@ -42,9 +60,7 @@ module tb_controller_SR04 ();
         rst = 0;
 
         #50;
-        btn_r = 1;
-        #10;
-        btn_r = 0;
+        push_btn_r;
 
         #15_000;
         echo = 1;

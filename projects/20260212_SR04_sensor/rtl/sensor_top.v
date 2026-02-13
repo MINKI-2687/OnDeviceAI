@@ -1,15 +1,18 @@
+`timescale 1ns / 1ps
+
 module sensor_top (
-    input         clk,
-    input         rst,
-    input         btn_r,
-    input         echo,
-    output        o_trigger
-    //output [23:0] distance
+    input        clk,
+    input        rst,
+    input        btn_r,
+    input        echo,
+    output       o_trigger,
+    output [3:0] fnd_digit,
+    output [7:0] fnd_data
 );
     wire w_btn_r, w_tick_1us;
     wire [23:0] w_distance;
 
-    controller_SR04 U_CTRL (
+    controller_SR04 U_CTRL_SR04 (
         .clk       (clk),
         .rst       (rst),
         .btn_r     (w_btn_r),
@@ -35,10 +38,9 @@ module sensor_top (
     fnd_controller U_FND_CNTL (
         .clk        (clk),
         .rst        (rst),
-        .sel_display(),
         .fnd_in_data(w_distance),
-        .fnd_digit  (),
-        .fnd_data   ()
+        .fnd_digit  (fnd_digit),
+        .fnd_data   (fnd_data)
     );
 
 endmodule
