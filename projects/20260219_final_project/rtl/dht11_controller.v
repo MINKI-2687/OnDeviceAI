@@ -158,7 +158,7 @@ module dht11_controller (
                             n_state = STOP;
                         end else begin
                             bit_cnt_next = bit_cnt_reg + 1;
-                            n_state = DATA_SYNC;  // next bit
+                            n_state      = DATA_SYNC;  // next bit
                         end
                     end
                 end
