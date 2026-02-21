@@ -40,20 +40,20 @@ module tb_dht11 ();
         start             = 0;
         dht11_sensor_io   = 1'b0;
         sensor_io_sel     = 1'b1;
-        // humidity integral, decimal, temperature integral, decimal, checksum
+        // humidity integral, decimal, temperature integral, decimal, checksum (50, 00, 25, 00, 75)
         dht11_sensor_data = {8'h32, 8'h00, 8'h19, 8'h00, 8'h4B};
 
         // reset
         #20;
         rst = 0;
-        #20;
+        #5;
         start = 1;
-        #10;
+        #5;
         start = 0;
 
         // 19msec + 30usec 뒤에 출력 끊어짐 MCU
         // start signal + wait
-        #(1900 * 10 * 1000 + 40_000);
+        #(19 * 1000 * 1000 + 29_975);
 
         // to output, sensor to FPGA
         sensor_io_sel   = 0;
@@ -86,7 +86,6 @@ module tb_dht11 ();
         sensor_io_sel = 1;
 
         #100_000;
-
 
         #1000;
         $stop;

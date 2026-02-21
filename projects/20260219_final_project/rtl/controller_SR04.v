@@ -103,13 +103,14 @@ module controller_SR04 (
             end
             DISTANCE: begin
                 if (!sync_echo_2) begin  // 측정이 끝났을 때
+                    // 1/58 -> 0.0172, 0.0172 * 65536 한 뒤, 비트 shift >> 16
                     distance_next = (echo_time_reg * 1130) >> 16;
                     n_state = IDLE;     //  측정이 끝나면 IDLE로 가서 60ms 쉬고 다시 시작
                     echo_time_next = 0;
                 end else if (w_tick_1us) begin
                     echo_time_next = echo_time_reg + 1;
                     // 타임아웃: 거리가 너무 멀면(약 4m 이상) 에러 방지용 리셋
-                    if (echo_time_reg > 30000) begin
+                    if (echo_time_reg > 25000) begin
                         n_state = IDLE;
                         echo_time_next = 0;
                     end

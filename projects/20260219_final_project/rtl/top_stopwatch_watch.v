@@ -8,7 +8,8 @@ module top_stopwatch_watch (
     input         btn_down,
     input         btn_run_stop,
     input         btn_clear,
-    output [31:0] o_watch_data
+    output [31:0] o_watch_data,
+    output [15:0] led
 );
 
     // control watch
@@ -20,10 +21,14 @@ module top_stopwatch_watch (
 
     wire [31:0] w_stopwatch_time;
     wire [31:0] w_watch_time;
-
     wire [31:0] w_time_data;
 
+    wire w_i_mode_sel;
+
     assign o_watch_data = w_time_data;
+
+    assign led[0] = sw[0];
+    assign led[1] = w_i_mode_sel;
 
     watch_control_unit U_WATCH_CONTROL_UNIT (
         .clk         (clk),

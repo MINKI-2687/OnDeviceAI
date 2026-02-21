@@ -3,7 +3,8 @@
 module system_top (
     input         clk,
     input         rst,
-    input  [15:0] sw,         //
+    input  [15:0] sw,
+    //input         uart_rx,
     input         btn_r,
     input         btn_l,
     input         btn_u,
@@ -13,11 +14,12 @@ module system_top (
     inout         dhtio,
     output [ 3:0] fnd_digit,
     output [ 7:0] fnd_data,
-    output [ 3:0] led_debug   // 상태 표시용
+    // output        uart_tx,
+    output [15:0] led
 );
 
     // btn
-    wire o_btn_run, o_btn_clear, o_btn_up, o_btn_down;
+    wire o_btn_r, o_btn_l, o_btn_u, o_btn_d;
 
     // dot : 초음파 센서가 아닐 때만 dot가 1이 됨
     wire w_dot = (sw[5:4] != 2'b01);
@@ -42,69 +44,41 @@ module system_top (
         endcase
     end
 
-    // 온습도 센서 2초 자동 업데이트용 타이머
-    reg [27:0] dht_timer;
-    wire w_dht_auto_start;
-
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
-            dht_timer <= 0;
-        end else begin
-            // 200,000,000번 카운트 = 2초
-            if (dht_timer >= 200_000_000) begin
-                dht_timer <= 0;
-            end else begin
-                dht_timer <= dht_timer + 1;
-            end
-        end
-    end
-
-    // 타이머가 0이 되는 딱 한 순간(1클럭)에만 펄스(1) 발생
-    assign w_dht_auto_start = (dht_timer == 0) ? 1'b1 : 1'b0;
-
-    btn_debounce U_BD_RUNSTOP (
-        .clk  (clk),
-        .rst  (rst),
-        .i_btn(btn_r),
-        .o_btn(o_btn_run)
+    btn_debounce_top U_BTN_DEBOUNCE (
+        .clk    (clk),
+        .rst    (rst),
+        .btn_r  (btn_r),
+        .btn_l  (btn_l),
+        .btn_u  (btn_u),
+        .btn_d  (btn_d),
+        .o_btn_r(o_btn_r),
+        .o_btn_l(o_btn_l),
+        .o_btn_u(o_btn_u),
+        .o_btn_d(o_btn_d)
     );
 
-    btn_debounce U_BD_CLEAR (
-        .clk  (clk),
-        .rst  (rst),
-        .i_btn(btn_l),
-        .o_btn(o_btn_clear)
-    );
-
-    btn_debounce U_BD_UP (
-        .clk  (clk),
-        .rst  (rst),
-        .i_btn(btn_u),
-        .o_btn(o_btn_up)
-    );
-
-    btn_debounce U_BD_DOWN (
-        .clk  (clk),
-        .rst  (rst),
-        .i_btn(btn_d),
-        .o_btn(o_btn_down)
-    );
+    /*uart_top U_UART_FIFO (
+        .clk    (clk),
+        .rst    (rst),
+        .uart_rx(uart_rx),
+        .uart_tx(uart_tx)
+    );*/
 
     top_stopwatch_watch U_SW_WATCH (
         .clk         (clk),
         .rst         (rst),
-        .sw          (sw),           // 스위치 입력
-        .btn_up      (o_btn_up),     // 디바운싱 버튼
-        .btn_down    (o_btn_down),
-        .btn_run_stop(o_btn_run),
-        .btn_clear   (o_btn_clear),
+        .sw          (sw),
+        .btn_up      (o_btn_u),
+        .btn_down    (o_btn_d),
+        .btn_run_stop(o_btn_r),
+        .btn_clear   (o_btn_l),
         .o_watch_data(w_clock_data)
     );
 
     controller_SR04 U_CNTL_SR04 (
         .clk      (clk),
         .rst      (rst),
-        .btn_r    (o_btn_run),   // start
+        .btn_r    (o_btn_r),
         .echo     (echo),
         .o_trigger(o_trigger),
         .distance (w_sr04_data)
@@ -113,12 +87,12 @@ module system_top (
     dht11_controller U_DHT11_CNTL (
         .clk        (clk),
         .rst        (rst),
-        .start      (o_btn_run | w_dht_auto_start),
+        .start      (o_btn_r),
         .humidity   (w_humidity),
         .temperature(w_temperature),
-        .dht11_done (led_debug[0]),
-        .dht11_valid(led_debug[1]),
-        .debug      (led_debug[3:2]),
+        .dht11_done (led[12]),
+        .dht11_valid(led[11]),
+        .debug      (led[15:13]),
         .dhtio      (dhtio)
     );
 

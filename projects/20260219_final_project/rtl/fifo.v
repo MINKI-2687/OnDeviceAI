@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+/*`timescale 1ns / 1ps
 
 module fifo #(
     parameter DEPTH = 4,
@@ -157,4 +157,4 @@ module control_unit #(
         endcase
     end
 endmodule
-
+*/

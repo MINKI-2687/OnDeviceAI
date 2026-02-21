@@ -1,24 +1,22 @@
 `timescale 1ns / 1ps
 
 module tb_controller_SR04 ();
-    reg         clk;
-    reg         rst;
-    reg         btn_r;
-    reg         i_tick_1us;
-    reg         echo;
-    wire        o_trigger;
-    wire [23:0] distance;
+    reg        clk;
+    reg        rst;
+    reg        btn_r;
+    reg        echo;
+    wire       o_trigger;
+    wire [8:0] distance;
 
-    wire        w_o_btn;
+    wire       w_o_btn;
 
     controller_SR04 CNTL_dut (
-        .clk       (clk),
-        .rst       (rst),
-        .btn_r     (btn_r),
-        .i_tick_1us(i_tick_1us),
-        .echo      (echo),
-        .o_trigger (o_trigger),
-        .distance  (distance)
+        .clk      (clk),
+        .rst      (rst),
+        .btn_r    (w_o_btn),
+        .echo     (echo),
+        .o_trigger(o_trigger),
+        .distance (distance)
     );
 
     btn_debounce BD_dut (
@@ -40,29 +38,17 @@ module tb_controller_SR04 ();
     endtask
 
     initial begin
-        i_tick_1us = 0;
-        forever begin
-            #990;  // 990ns 대기
-            @(posedge clk);
-            i_tick_1us = 1;
-            @(posedge clk);
-            i_tick_1us = 0;
-        end
-    end
-
-    initial begin
-        clk        = 0;
-        rst        = 1;
-        btn_r      = 0;
-        i_tick_1us = 0;
-        echo       = 0;
+        clk   = 0;
+        rst   = 1;
+        btn_r = 0;
+        echo  = 0;
         #20;
         rst = 0;
 
         #50;
         push_btn_r;
 
-        #15_000;
+        #60_000_000;
         echo = 1;
         #580_000;
         echo = 0;
