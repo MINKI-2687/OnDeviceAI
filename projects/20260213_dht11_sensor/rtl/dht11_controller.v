@@ -77,8 +77,8 @@ module dht11_controller (
         end
     end
 
-    wire w_dht_pos_edge = (dhtio_sync_2 == 1'b1 && dhtio_sync_3 == 1'b0);
-    wire w_dht_neg_edge = (dhtio_sync_2 == 1'b0 && dhtio_sync_3 == 1'b1);
+    wire w_dht_pos_edge = (dhtio_sync_2 == 1'b0 && dhtio_sync_3 == 1'b1);
+    wire w_dht_neg_edge = (dhtio_sync_2 == 1'b1 && dhtio_sync_3 == 1'b0);
 
     // state register
     always @(posedge clk, posedge rst) begin
