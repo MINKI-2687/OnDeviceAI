@@ -142,6 +142,7 @@ class scoreboard;
     // queue
     logic                  [7:0] fifo_queue   [$:16];
     logic                  [7:0] compare_data;
+    
     function new(mailbox#(transaction) mon2scb_mbox, event gen_next_ev);
         this.mon2scb_mbox = mon2scb_mbox;
         this.gen_next_ev  = gen_next_ev;
