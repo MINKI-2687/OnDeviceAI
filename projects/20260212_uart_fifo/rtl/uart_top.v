@@ -142,7 +142,8 @@ module uart_rx (
             STOP: begin
                 if (b_tick) begin
                     if (b_tick_cnt_reg == 4'd15) begin
-                        n_state   = IDLE;
+                        b_tick_cnt_next = 4'd0;
+                        n_state = IDLE;
                         done_next = 1'b1;
                     end else begin
                         b_tick_cnt_next = b_tick_cnt_reg + 1;
@@ -150,7 +151,6 @@ module uart_rx (
                 end
             end
         endcase
-
     end
 
 endmodule
@@ -254,9 +254,9 @@ module uart_tx (
                         if (bit_cnt_reg == 7) begin
                             n_state = STOP;
                         end else begin
-                            bit_cnt_next = bit_cnt_reg + 1;
+                            bit_cnt_next     = bit_cnt_reg + 1;
                             data_in_buf_next = {1'b0, data_in_buf_reg[7:1]};
-                            n_state = DATA;
+                            n_state          = DATA;
                         end
                     end else begin
                         b_tick_cnt_next = b_tick_cnt_reg + 1;
@@ -267,8 +267,9 @@ module uart_tx (
                 tx_next = 1'b1;
                 if (b_tick) begin
                     if (b_tick_cnt_reg == 15) begin
-                        done_next = 1'b1;
-                        n_state   = IDLE;
+                        b_tick_cnt_next = 4'h0;
+                        done_next       = 1'b1;
+                        n_state         = IDLE;
                     end else begin
                         b_tick_cnt_next = b_tick_cnt_reg + 1;
                     end
