@@ -5,6 +5,8 @@
 *.pb
 *.os
 *.zip
+*.html
+*.xml
 
 # 비바도 프로젝트 내부의 무거운 폴더 무시
 *.cache/
@@ -13,6 +15,10 @@
 *.runs/
 *.sim/
 *.gen/
+xsim.dir/
+xvlog.log
+xelab.log
+*.xpr
 
 # 기타 임시 폴더
 .Xil/
