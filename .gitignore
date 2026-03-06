@@ -18,7 +18,6 @@
 xsim.dir/
 xvlog.log
 xelab.log
-*.xpr
 
 # 기타 임시 폴더
 .Xil/
