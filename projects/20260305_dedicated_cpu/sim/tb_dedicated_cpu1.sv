@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module tb_dedicated_cpu ();
+module tb_dedicated_cpu1 ();
 
     logic clk, rst;
     logic [7:0] out;
@@ -19,7 +19,7 @@ module tb_dedicated_cpu ();
         @(posedge clk);
         @(negedge clk);
         rst = 0;
-        repeat (11) @(posedge clk);
+        repeat (50) @(posedge clk);
         $stop;
     end
 endmodule

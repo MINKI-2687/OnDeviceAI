@@ -8,11 +8,11 @@ module dedicated_cpu1 (
 
     logic asrcsel, aload, sumsrcsel, sumload, alusrcsel, outload, alt11;
 
-    control_unit U_CONTROL_UNIT (.*);
-    datapath U_DATAPATH (.*);
+    control_unit1 U_CONTROL_UNIT (.*);
+    datapath1 U_DATAPATH (.*);
 endmodule
 //
-module control_unit (
+module control_unit1 (
     input        clk,
     input        rst,
     input        alt11,
@@ -112,7 +112,7 @@ module control_unit (
     end
 endmodule
 //
-module datapath (
+module datapath1 (
     input        clk,
     input        rst,
     input        asrcsel,
@@ -126,71 +126,71 @@ module datapath (
 );
 
     logic [7:0]
-        w_areg_src_data,
-        w_sumreg_src_data,
-        w_areg_out,
-        w_sumreg_out,
-        w_alu_src_data,
-        w_alu_out;
+        areg_src_data,
+        sumreg_src_data,
+        areg_out,
+        sumreg_out,
+        alu_src_data,
+        alu_out;
 
-    register U_OUTREG (
+    register1 U_OUTREG (
         .clk     (clk),
         .rst     (rst),
         .load    (outload),
-        .in_data (w_sumreg_out),
+        .in_data (sumreg_out),
         .out_data(out)
     );
 
-    mux_2x1 U_AREG_SRC_MUX (
+    mux1_2x1 U_AREG_SRC_MUX (
         .a      (8'h00),
-        .b      (w_alu_out),
+        .b      (alu_out),
         .sel    (asrcsel),
-        .mux_out(w_areg_src_data)
+        .mux_out(areg_src_data)
     );
 
-    register U_AREG (
+    register1 U_AREG (
         .clk     (clk),
         .rst     (rst),
         .load    (aload),
-        .in_data (w_areg_src_data),
-        .out_data(w_areg_out)
+        .in_data (areg_src_data),
+        .out_data(areg_out)
     );
 
-    mux_2x1 U_SUMREG_SRC_MUX (
+    mux1_2x1 U_SUMREG_SRC_MUX (
         .a      (8'h00),
-        .b      (w_alu_out),
+        .b      (alu_out),
         .sel    (sumsrcsel),
-        .mux_out(w_sumreg_src_data)
+        .mux_out(sumreg_src_data)
     );
 
-    register U_SUMREG (
+    register1 U_SUMREG (
         .clk     (clk),
         .rst     (rst),
         .load    (sumload),
-        .in_data (w_sumreg_src_data),
-        .out_data(w_sumreg_out)
+        .in_data (sumreg_src_data),
+        .out_data(sumreg_out)
     );
 
-    mux_2x1 U_ALU_SRC_MUX (
-        .a      (w_sumreg_out),
+    mux1_2x1 U_ALU_SRC_MUX (
+        .a      (sumreg_out),
         .b      (1),
         .sel    (alusrcsel),
-        .mux_out(w_alu_src_data)
+        .mux_out(alu_src_data)
     );
 
-    alu U_ALU (
-        .a      (w_areg_out),      // from areg
-        .b      (w_alu_src_data),  // from sumreg
-        .alu_out(w_alu_out)
+    alu1 U_ALU (
+        .a      (areg_out),      // from areg
+        .b      (alu_src_data),  // from sumreg
+        .alu_out(alu_out)
     );
 
-    alt11_comp U_ALT11 (
-        .in_data(w_areg_out),
+    alt11_comp1 U_ALT11 (
+        .in_data(areg_out),
         .alt11  (alt11)
     );
 endmodule
 //
-module register (
+module register1 (
     input              clk,
     input              rst,
     input              load,
@@ -207,7 +207,7 @@ module register (
     end
 endmodule
 //
-module alu (
+module alu1 (
     input  [7:0] a,
     input  [7:0] b,
     output [7:0] alu_out
@@ -216,7 +216,7 @@ module alu (
     assign alu_out = a + b;
 endmodule
 //
-module mux_2x1 (
+module mux1_2x1 (
     input  [7:0] a,
     input  [7:0] b,
     input        sel,
@@ -226,7 +226,7 @@ module mux_2x1 (
     assign mux_out = (sel) ? b : a;
 endmodule
 //
-module alt11_comp (
+module alt11_comp1 (
     input  [7:0] in_data,
     output       alt11
 );

@@ -8,12 +8,12 @@ module dedicated_cpu0 (
 
     logic asrcsel, aload, outsel, alt10;
 
-    control_unit U_CONTROL_UNIT (.*);
-    datapath U_DATAPATH (.*);
+    control_unit0 U_CONTROL_UNIT (.*);
+    datapath0 U_DATAPATH (.*);
 
 endmodule
 
-module control_unit (
+module control_unit0 (
     input        clk,
     input        rst,
     input        alt10,
@@ -84,7 +84,7 @@ module control_unit (
     end
 endmodule
 //
-module datapath (
+module datapath0 (
     input        clk,
     input        rst,
     input        asrcsel,
@@ -94,38 +94,38 @@ module datapath (
     output       alt10
 );
 
-    logic [7:0] w_aluout, w_muxout, w_regout;
-    assign out = (outsel) ? w_regout : 8'hz;
+    logic [7:0] aluout, muxout, regout;
+    assign out = (outsel) ? regout : 8'hz;
 
-    mux_2x1 U_ASRCMUX (
+    mux0_2x1 U_ASRCMUX (
         .a      (8'h00),
-        .b      (w_aluout),
+        .b      (aluout),
         .asrcsel(asrcsel),
-        .mux_out(w_muxout)
+        .mux_out(muxout)
     );
 
-    areg U_AREG (
+    areg0 U_AREG (
         .clk    (clk),
         .rst    (rst),
-        .reg_in (w_muxout),
+        .reg_in (muxout),
         .aload  (aload),
-        .reg_out(w_regout)
+        .reg_out(regout)
     );
 
-    alu U_ALU (
-        .a      (w_regout),
+    alu0 U_ALU (
+        .a      (regout),
         .b      (8'h1),
-        .alu_out(w_aluout)
+        .alu_out(aluout)
     );
 
-    alt10_comp U_ALT10 (
-        .in_data(w_regout),
+    alt10_comp0 U_ALT10 (
+        .in_data(regout),
         .alt10  (alt10)
     );
 
 endmodule
 //
-module areg (
+module areg0 (
     input        clk,
     input        rst,
     input  [7:0] reg_in,
@@ -148,7 +148,7 @@ module areg (
     end
 endmodule
 //
-module alu (
+module alu0 (
     input  [7:0] a,
     input  [7:0] b,
     output [7:0] alu_out
@@ -158,7 +158,7 @@ module alu (
 
 endmodule
 //
-module mux_2x1 (
+module mux0_2x1 (
     input  [7:0] a,
     input  [7:0] b,
     input        asrcsel,
@@ -169,7 +169,7 @@ module mux_2x1 (
 
 endmodule
 
-module alt10_comp (
+module alt10_comp0 (
     input  [7:0] in_data,
     output       alt10
 );
