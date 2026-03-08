@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_cpu_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_cpu" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="266953fs"></ZoomStartTime>
+      <ZoomEndTime time="533554fs"></ZoomEndTime>
+      <Cursor1Time time="15000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="138"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/tb_cpu/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/out" type="array">
+      <obj_property name="ElementShortName">out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_CONTROL_UNIT/c_state" type="array">
+      <obj_property name="ElementShortName">c_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">c_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/we" type="logic">
+      <obj_property name="ElementShortName">we</obj_property>
+      <obj_property name="ObjectShortName">we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/rfsrcsel" type="logic">
+      <obj_property name="ElementShortName">rfsrcsel</obj_property>
+      <obj_property name="ObjectShortName">rfsrcsel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/raddr0" type="array">
+      <obj_property name="ElementShortName">raddr0[1:0]</obj_property>
+      <obj_property name="ObjectShortName">raddr0[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/raddr1" type="array">
+      <obj_property name="ElementShortName">raddr1[1:0]</obj_property>
+      <obj_property name="ObjectShortName">raddr1[1:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/waddr" type="array">
+      <obj_property name="ElementShortName">waddr[1:0]</obj_property>
+      <obj_property name="ObjectShortName">waddr[1:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/ile10" type="logic">
+      <obj_property name="ElementShortName">ile10</obj_property>
+      <obj_property name="ObjectShortName">ile10</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/rd0_out" type="array">
+      <obj_property name="ElementShortName">rd0_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rd0_out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/rd1_out" type="array">
+      <obj_property name="ElementShortName">rd1_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rd1_out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/alu_out" type="array">
+      <obj_property name="ElementShortName">alu_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_cpu/dut/U_DATAPATH/rf_src_data" type="array">
+      <obj_property name="ElementShortName">rf_src_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rf_src_data[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>
