@@ -8,14 +8,16 @@ module rv32i_datapath (
     input         alu_src_sel,
     input  [ 3:0] alu_control,
     input  [31:0] instr_data,
+    input  [31:0] drdata,
+    input         rfwd_srcsel,
     output [31:0] instr_addr,
-    output [31:0] dwaddr,
+    output [31:0] daddr,
     output [31:0] dwdata
 );
 
-    logic [31:0] rd1, rd2, alu_result, imm_data, alurs2_data;
+    logic [31:0] rd1, rd2, alu_result, imm_data, alurs2_data, rfwb_data;
 
-    assign dwaddr = alu_result;
+    assign daddr  = alu_result;
     assign dwdata = rd2;
 
     program_counter U_PC (
@@ -30,7 +32,7 @@ module rv32i_datapath (
         .ra1  (instr_data[19:15]),
         .ra2  (instr_data[24:20]),
         .wa   (instr_data[11:7]),
-        .wdata(alu_result),
+        .wdata(rfwb_data),
         .rf_we(rf_we),
         .rd1  (rd1),
         .rd2  (rd2)
@@ -42,10 +44,10 @@ module rv32i_datapath (
     );
 
     mux_2x1 U_MUX_ALUSRC_RS2 (
-        .in0      (rd2),          // sel 0
-        .in1      (imm_data),     // sel 1
-        .alusrcsel(alu_src_sel),
-        .out_mux  (alurs2_data)
+        .in0    (rd2),          // sel 0
+        .in1    (imm_data),     // sel 1
+        .mux_sel(alu_src_sel),
+        .out_mux(alurs2_data)
     );
 
     alu U_ALU (
@@ -54,16 +56,25 @@ module rv32i_datapath (
         .alu_control(alu_control),
         .alu_result (alu_result)
     );
+
+    // to register file
+    mux_2x1 U_MUX_WB_REGFILE (
+        .in0    (alu_result),   // sel 0
+        .in1    (drdata),       // sel 1
+        .mux_sel(rfwd_srcsel),
+        .out_mux(rfwb_data)
+    );
+
 endmodule
 
 module mux_2x1 (
-    input        [31:0] in0,        // sel 0
-    input        [31:0] in1,        // sel 1
-    input               alusrcsel,
+    input        [31:0] in0,      // sel 0
+    input        [31:0] in1,      // sel 1
+    input               mux_sel,
     output logic [31:0] out_mux
 );
 
-    assign out_mux = (alusrcsel) ? in1 : in0;
+    assign out_mux = (mux_sel) ? in1 : in0;
 endmodule
 
 module imm_extender (
@@ -74,10 +85,13 @@ module imm_extender (
     always_comb begin
         imm_data = 32'd0;
         case (instr_data[6:0])
-            `S_TYPE: begin
+            `S_TYPE: begin  // store
                 imm_data = {
                     {20{instr_data[31]}}, instr_data[31:25], instr_data[11:7]
                 };
+            end
+            `IL_TYPE: begin  // load
+                imm_data = {{20{instr_data[31]}}, instr_data[31:20]};
             end
         endcase
     end
