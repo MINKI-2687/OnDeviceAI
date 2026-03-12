@@ -16,7 +16,7 @@ module tb_rv32i ();
         @(negedge clk);
         rst = 0;
 
-        repeat (3) @(negedge clk);
+        repeat (20) @(negedge clk);
         $stop;
     end
 endmodule
