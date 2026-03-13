@@ -116,10 +116,7 @@ module imm_extender (
                     {20{instr_data[31]}}, instr_data[31:25], instr_data[11:7]
                 };
             end
-            `JL_TYPE: begin
-                imm_data = {{20{instr_data[31]}}, instr_data[31:20]};
-            end
-            `I_TYPE, `IL_TYPE: begin  // load
+            `I_TYPE, `IL_TYPE, `JL_TYPE: begin  // load, JALR
                 imm_data = {{20{instr_data[31]}}, instr_data[31:20]};
             end
             `U_TYPE, `UPC_TYPE: begin

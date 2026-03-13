@@ -11,7 +11,7 @@ module data_mem (
 );
 
     // word address
-    logic [31:0] dmem[0:127];
+    logic [31:0] dmem[0:255];
 
     // S-type (store)
     always_ff @(posedge clk) begin
