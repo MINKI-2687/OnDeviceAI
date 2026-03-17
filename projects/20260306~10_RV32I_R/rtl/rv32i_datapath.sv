@@ -154,7 +154,9 @@ module register_file (
         for (int i = 0; i < 32; i++) begin
             register_file[i] = i;
         end
-        register_file[6] = 32'hFFFF_0000;
+        register_file[6] = 32'hFFFF_0100;
+        register_file[7] = 32'h0000_8080;
+        register_file[8] = 32'hc030_0c03;
     end
 `endif
 
@@ -198,7 +200,7 @@ module alu (
             `XOR:  alu_result = rd1 ^ rd2;
             // SRL RD = RS1 >> RS2
             `SRL:  alu_result = rd1 >> rd2[4:0];
-            // SRA RD = RS1 >> RS2 (msb extention, arithmetic right shift)
+            // SRA RD = RS1 >> RS2 (msb extension, arithmetic right shift)
             `SRA:  alu_result = $signed(rd1) >>> rd2[4:0];
             // OR RD = RS1 | RS2
             `OR:   alu_result = rd1 | rd2;
