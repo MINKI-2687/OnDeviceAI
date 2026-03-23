@@ -29,7 +29,6 @@ module rv32i_datapath (
     logic [31:0] o_exe_rs2, o_exe_alu_result;
     // mem
     logic [31:0] o_mem_drdata;
-    // write back to register file
 
     assign daddr  = o_exe_alu_result;
     assign dwdata = o_exe_rs2;
@@ -43,7 +42,7 @@ module rv32i_datapath (
         .branch         (branch),     // from control unit for B-type
         .jal            (jal),
         .jalr           (jalr),
-        .rd1            (rd1),
+        .rd1            (o_dec_rs1),
         .imm_data       (o_dec_imm),
         .pc_imm_out     (auipc),
         .pc_4_out       (j_type),
@@ -69,7 +68,7 @@ module rv32i_datapath (
         .imm_data  (imm_data)
     );
 
-
+    // decode output register
     register U_DEC_REG_RS1 (
         .clk     (clk),
         .rst     (rst),
@@ -108,6 +107,7 @@ module rv32i_datapath (
         .btaken     (btaken)
     );
 
+    // execute register for ALU result, RS2
     register U_EXE_ALU_RESULT (
         .clk     (clk),
         .rst     (rst),
@@ -134,11 +134,11 @@ module rv32i_datapath (
 
     // to register file
     mux_5x1 U_MUX_WB_REGFILE (
-        .in0    (o_exe_alu_result),  // from EXE_ALU Result
-        .in1    (o_mem_drdata),      // from data memory
-        .in2    (o_dec_imm),         // from imm extend, LUI
-        .in3    (auipc),             // from pc + imm extend, AUIPC
-        .in4    (j_type),            // from pc + 4, JAL, JALR
+        .in0    (alu_result),    // from ALU Result
+        .in1    (o_mem_drdata),  // from data memory
+        .in2    (o_dec_imm),     // from imm extend, LUI
+        .in3    (auipc),         // from pc + imm extend, AUIPC
+        .in4    (j_type),        // from pc + 4, JAL, JALR
         .mux_sel(rfwd_srcsel),
         .out_mux(rfwb_data)
     );
@@ -329,7 +329,7 @@ endmodule
 module program_counter (
     input         clk,
     input         rst,
-    input         pc_en,
+    input         pc_en,           // from control unit for pc register
     input         btaken,          // from alu for B-type
     input         branch,          // from control unit for B-type
     input         jal,
@@ -416,6 +416,7 @@ module register (
     assign data_out = register;
 endmodule
 
+// for pc value
 module register_en (
     input         clk,
     input         rst,

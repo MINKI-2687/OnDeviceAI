@@ -1,15 +1,12 @@
 `timescale 1ns / 1ps
 
 module rv32i_top (
-    input         clk,
-    input         rst,
-    output [15:0] led
+    input clk,
+    input rst
 );
     logic dwe;
     logic [2:0] o_funct3;
     logic [31:0] instr_addr, instr_data, daddr, dwdata, drdata;
-
-    assign led = drdata;
 
     instruction_mem U_INSTRUCTION_MEM (.*);
 

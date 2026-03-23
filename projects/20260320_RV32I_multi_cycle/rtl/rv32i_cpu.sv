@@ -23,6 +23,7 @@ module rv32i_cpu (
         .funct7     (instr_data[31:25]),
         .funct3     (instr_data[14:12]),
         .opcode     (instr_data[6:0]),
+        .pc_en      (pc_en),              // for multi cycle FETCH
         .rf_we      (rf_we),
         .branch     (branch),
         .jal        (jal),
@@ -54,23 +55,12 @@ module control_unit (
     output logic [2:0] o_funct3,
     output logic       dwe
 );
-
-    typedef enum logic {
+    // control unit 
+    typedef enum {
         FETCH,
         DECODE,
         EXECUTE,
-        EXE_R,
-        EXE_I,
-        EXE_S,
-        EXE_B,
-        EXE_IL,
-        EXE_J,
-        EXE_JL,
-        EXE_U,
-        EXE_UPC,
         MEM,
-        MEM_S,
-        MEM_IL,
         WB
     } state_e;
 
@@ -95,10 +85,17 @@ module control_unit (
                 n_state = EXECUTE;
             end
             EXECUTE: begin
-                //
+                case (opcode)
+                    `R_TYPE, `I_TYPE, `B_TYPE, `UPC_TYPE, `J_TYPE, `JL_TYPE:
+                    n_state = FETCH;
+                    `S_TYPE, `IL_TYPE: n_state = MEM;
+                endcase
             end
             MEM: begin
-                //
+                case (opcode)
+                    `S_TYPE:  n_state = FETCH;
+                    `IL_TYPE: n_state = WB;
+                endcase
             end
             WB: begin
                 n_state = FETCH;
@@ -115,9 +112,9 @@ module control_unit (
         jalr        = 1'b0;
         alu_src_sel = 1'b0;
         alu_control = 4'b0000;
-        rfwd_srcsel = 3'b000;
-        o_funct3    = 3'b000;
-        dwe         = 1'b0;
+        rfwd_srcsel = 3'd0;
+        o_funct3    = 3'b000;  // for S, IL type
+        dwe         = 1'b0;  // for S, IL type
         case (c_state)
             FETCH: begin
                 pc_en = 1'b1;
@@ -128,10 +125,12 @@ module control_unit (
             EXECUTE: begin
                 case (opcode)
                     `R_TYPE: begin
+                        rf_we = 1'b1;  // next state FETCH
                         alu_src_sel = 1'b0;
                         alu_control = {funct7[5], funct3};
                     end
                     `I_TYPE: begin
+                        rf_we = 1'b1;  // next state FETCH
                         alu_src_sel = 1'b1;
                         if (funct3 == 3'b101) alu_control = {funct7[5], funct3};
                         else alu_control = {1'b0, funct3};
@@ -144,139 +143,148 @@ module control_unit (
                     end
                     `S_TYPE: begin
                         alu_src_sel = 1'b1;
-                        alu_control = 4'b0000;
-                        o_funct3    = funct3;
-                        dwe         = 1'b1;
+                        alu_control = 4'b0000;  // add for dwaddr
                     end
                     `IL_TYPE: begin
                         alu_src_sel = 1'b1;
-                        alu_control = 4'b0000;
-                        o_funct3    = funct3;
-                        dwe         = 1'b0;
+                        alu_control = 4'b0000;  // add for dwaddr
                     end
                     `U_TYPE: begin
-                        //
+                        rf_we       = 1'b1;  // next state FETCH
+                        rfwd_srcsel = 3'd2;
                     end
                     `UPC_TYPE: begin
-                        //
+                        rf_we       = 1'b1;  // next state FETCH
+                        rfwd_srcsel = 3'd3;
                     end
                     `J_TYPE, `JL_TYPE: begin
-                        jal = 1'b1;
+                        rf_we = 1'b1;  // next state FETCH
+                        jal   = 1'b1;
                         if (opcode == `JL_TYPE) jalr = 1'b1;
                         else jalr = 1'b0;
+                        rfwd_srcsel = 3'd4;
                     end
                 endcase
             end
+            MEM: begin
+                o_funct3 = funct3;
+                if (opcode == `S_TYPE) dwe = 1'b1;
+            end
+            WB: begin
+                // IL type
+                rf_we       = 1'b1;  // next state FETCH
+                rfwd_srcsel = 3'd1;
+            end
         endcase
     end
-
-
-
-    // always_comb begin
-    //     rf_we       = 1'b0;
-    //     branch      = 1'b0;
-    //     jal         = 1'b0;
-    //     jalr        = 1'b0;
-    //     alu_src_sel = 1'b0;
-    //     alu_control = 4'b0000;
-    //     rfwd_srcsel = 3'b000;
-    //     o_funct3    = 3'b000;
-    //     dwe         = 1'b0;
-    //     case (opcode)
-    //         // R-type, to write register file, alu_control == {funct7[5], funct3}
-    //         `R_TYPE: begin
-    //             rf_we       = 1'b1;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b0;
-    //             alu_control = {funct7[5], funct3};
-    //             rfwd_srcsel = 3'd0;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //         `B_TYPE: begin
-    //             rf_we       = 1'b0;
-    //             branch      = 1'b1;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b0;
-    //             alu_control = {1'b0, funct3};
-    //             rfwd_srcsel = 3'd0;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //         `S_TYPE: begin
-    //             rf_we       = 1'b0;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b1;
-    //             alu_control = 4'b0000;
-    //             rfwd_srcsel = 3'd0;
-    //             o_funct3    = funct3;
-    //             dwe         = 1'b1;
-    //         end
-    //         `IL_TYPE: begin
-    //             rf_we       = 1'b1;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b1;
-    //             alu_control = 4'b0000;
-    //             rfwd_srcsel = 3'd1;
-    //             o_funct3    = funct3;
-    //             dwe         = 1'b0;
-    //         end
-    //         `I_TYPE: begin
-    //             rf_we       = 1'b1;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b1;
-    //             if (funct3 == 3'b101) begin
-    //                 alu_control = {funct7[5], funct3};
-    //             end else begin
-    //                 alu_control = {1'b0, funct3};
-    //             end
-    //             rfwd_srcsel = 3'd0;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //         `U_TYPE: begin
-    //             rf_we       = 1'b1;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b0;
-    //             alu_control = 4'b0000;
-    //             rfwd_srcsel = 3'd2;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //         `UPC_TYPE: begin
-    //             rf_we       = 1'b1;
-    //             branch      = 1'b0;
-    //             jal         = 1'b0;
-    //             jalr        = 1'b0;
-    //             alu_src_sel = 1'b0;
-    //             alu_control = 4'b0000;
-    //             rfwd_srcsel = 3'd3;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //         `J_TYPE, `JL_TYPE: begin
-    //             rf_we  = 1'b1;
-    //             branch = 1'b0;
-    //             jal    = 1'b1;
-    //             if (opcode == `JL_TYPE) jalr = 1'b1;
-    //             else jalr = 1'b0;
-    //             alu_src_sel = 1'b0;
-    //             alu_control = 4'b0000;
-    //             rfwd_srcsel = 3'd4;
-    //             o_funct3    = 3'b000;
-    //             dwe         = 1'b0;
-    //         end
-    //     endcase
-    // end
 endmodule
+
+
+
+// always_comb begin
+//     rf_we       = 1'b0;
+//     branch      = 1'b0;
+//     jal         = 1'b0;
+//     jalr        = 1'b0;
+//     alu_src_sel = 1'b0;
+//     alu_control = 4'b0000;
+//     rfwd_srcsel = 3'b000;
+//     o_funct3    = 3'b000;
+//     dwe         = 1'b0;
+//     case (opcode)
+//         // R-type, to write register file, alu_control == {funct7[5], funct3}
+//         `R_TYPE: begin
+//             rf_we       = 1'b1;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b0;
+//             alu_control = {funct7[5], funct3};
+//             rfwd_srcsel = 3'd0;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//         `B_TYPE: begin
+//             rf_we       = 1'b0;
+//             branch      = 1'b1;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b0;
+//             alu_control = {1'b0, funct3};
+//             rfwd_srcsel = 3'd0;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//         `S_TYPE: begin
+//             rf_we       = 1'b0;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b1;
+//             alu_control = 4'b0000;
+//             rfwd_srcsel = 3'd0;
+//             o_funct3    = funct3;
+//             dwe         = 1'b1;
+//         end
+//         `IL_TYPE: begin
+//             rf_we       = 1'b1;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b1;
+//             alu_control = 4'b0000;
+//             rfwd_srcsel = 3'd1;
+//             o_funct3    = funct3;
+//             dwe         = 1'b0;
+//         end
+//         `I_TYPE: begin
+//             rf_we       = 1'b1;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b1;
+//             if (funct3 == 3'b101) begin
+//                 alu_control = {funct7[5], funct3};
+//             end else begin
+//                 alu_control = {1'b0, funct3};
+//             end
+//             rfwd_srcsel = 3'd0;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//         `U_TYPE: begin
+//             rf_we       = 1'b1;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b0;
+//             alu_control = 4'b0000;
+//             rfwd_srcsel = 3'd2;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//         `UPC_TYPE: begin
+//             rf_we       = 1'b1;
+//             branch      = 1'b0;
+//             jal         = 1'b0;
+//             jalr        = 1'b0;
+//             alu_src_sel = 1'b0;
+//             alu_control = 4'b0000;
+//             rfwd_srcsel = 3'd3;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//         `J_TYPE, `JL_TYPE: begin
+//             rf_we  = 1'b1;
+//             branch = 1'b0;
+//             jal    = 1'b1;
+//             if (opcode == `JL_TYPE) jalr = 1'b1;
+//             else jalr = 1'b0;
+//             alu_src_sel = 1'b0;
+//             alu_control = 4'b0000;
+//             rfwd_srcsel = 3'd4;
+//             o_funct3    = 3'b000;
+//             dwe         = 1'b0;
+//         end
+//     endcase
+// end
