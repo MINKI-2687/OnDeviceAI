@@ -5,12 +5,14 @@ module rv32i_cpu (
     input         clk,
     input         rst,
     input  [31:0] instr_data,
-    input  [31:0] drdata,
+    input  [31:0] bus_rdata,
+    input         bus_ready,
     output [31:0] instr_addr,
-    output        dwe,
+    output        bus_wreq,
+    output        bus_rreq,
     output [ 2:0] o_funct3,
-    output [31:0] daddr,
-    output [31:0] dwdata
+    output [31:0] bus_addr,
+    output [31:0] bus_wdata
 );
 
     logic pc_en, rf_we, branch, alu_src_sel, jal, jalr;
@@ -23,6 +25,7 @@ module rv32i_cpu (
         .funct7     (instr_data[31:25]),
         .funct3     (instr_data[14:12]),
         .opcode     (instr_data[6:0]),
+        .ready      (bus_ready),
         .pc_en      (pc_en),              // for multi cycle FETCH
         .rf_we      (rf_we),
         .branch     (branch),
@@ -32,7 +35,8 @@ module rv32i_cpu (
         .alu_control(alu_control),
         .rfwd_srcsel(rfwd_srcsel),
         .o_funct3   (o_funct3),
-        .dwe        (dwe)
+        .dwe        (bus_wreq),
+        .dre        (bus_rreq)
     );
 
     rv32i_datapath U_DATAPATH (.*);
@@ -44,6 +48,7 @@ module control_unit (
     input        [6:0] funct7,
     input        [2:0] funct3,
     input        [6:0] opcode,
+    input              ready,
     output logic       pc_en,
     output logic       rf_we,
     output logic       branch,
@@ -53,7 +58,8 @@ module control_unit (
     output logic [3:0] alu_control,
     output logic [2:0] rfwd_srcsel,
     output logic [2:0] o_funct3,
-    output logic       dwe
+    output logic       dwe,
+    output logic       dre
 );
     // control unit 
     typedef enum {
@@ -93,12 +99,14 @@ module control_unit (
             end
             MEM: begin
                 case (opcode)
-                    `S_TYPE:  n_state = FETCH;
+                    `S_TYPE: begin
+                        if (ready) n_state = FETCH;
+                    end
                     `IL_TYPE: n_state = WB;
                 endcase
             end
             WB: begin
-                n_state = FETCH;
+                if (ready) n_state = FETCH;
             end
         endcase
     end
@@ -114,7 +122,8 @@ module control_unit (
         alu_control = 4'b0000;
         rfwd_srcsel = 3'd0;
         o_funct3    = 3'b000;  // for S, IL type
-        dwe         = 1'b0;  // for S, IL type
+        dwe         = 1'b0;  // for S type
+        dre         = 1'b0;  // for IL type
         case (c_state)
             FETCH: begin
                 pc_en = 1'b1;
@@ -174,11 +183,11 @@ module control_unit (
                 // IL type
                 rf_we       = 1'b1;  // next state FETCH
                 rfwd_srcsel = 3'd1;
+                dre         = 1'b1;
             end
         endcase
     end
 endmodule
-
 
 
 // always_comb begin
