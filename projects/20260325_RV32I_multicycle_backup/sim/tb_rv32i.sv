@@ -3,11 +3,8 @@
 module tb_rv32i ();
 
     logic clk, rst;
-    logic led;
-    rv32i_mcu dut (
-        .*,
-        .led(led)
-    );
+
+    rv32i_top dut (.*);
 
     always #5 clk = ~clk;
 

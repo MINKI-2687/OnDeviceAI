@@ -2,7 +2,7 @@
 
 module apb_master (
     input               pclk,
-    input               presetn,
+    input               preset,
     //---------------------------------------
     // SoC Internal signal with CPU
     // pc -> master
@@ -12,7 +12,6 @@ module apb_master (
     input               rreq,     // read request,  signal cpu : dre
     // master -> pc
     output       [31:0] rdata,
-    //output              slverr,
     output              ready,
     //---------------------------------------
     // APB Interface signal
@@ -20,27 +19,21 @@ module apb_master (
     // ram
     input        [31:0] prdata0,
     input               pready0,
-    //input               pslverr0,
     // gpo
     input        [31:0] prdata1,
     input               pready1,
-    //input               pslverr1,
     // gpi
     input        [31:0] prdata2,
     input               pready2,
-    //input               pslverr2,
     // gpio
     input        [31:0] prdata3,
     input               pready3,
-    //input               pslverr3,
     // fnd
     input        [31:0] prdata4,
     input               pready4,
-    //input               pslverr4,
     // uart
     input        [31:0] prdata5,
     input               pready5,
-    //input               pslverr5,
     // master -> slave
     output logic [31:0] paddr,    // need register
     output logic [31:0] pwdata,   // need register
@@ -67,8 +60,8 @@ module apb_master (
     logic decode_en, pwrite_next;
 
     // SL
-    always_ff @(posedge pclk, negedge presetn) begin
-        if (!presetn) begin  // negative edge reset
+    always_ff @(posedge pclk, posedge preset) begin
+        if (preset) begin  // negative edge reset
             c_state <= IDLE;
             paddr   <= 32'd0;
             pwdata  <= 32'd0;
@@ -91,12 +84,16 @@ module apb_master (
         pwrite_next = pwrite;
         case (c_state)
             IDLE: begin
-                decode_en = 1;
+                decode_en   = 0;
+                penable     = 1'b0;
+                paddr_next  = 32'd0;
+                pwdata_next = 32'd0;
+                pwrite_next = 1'b0;
                 if (wreq || rreq) begin
                     paddr_next  = addr;
                     pwdata_next = wdata;
-                    if (wreq) pwrite_next = 1;
-                    else pwrite_next = 0;
+                    if (wreq) pwrite_next = 1'b1;
+                    else pwrite_next = 1'b0;
                     n_state = SETUP;
                 end
             end
@@ -118,7 +115,7 @@ module apb_master (
 
     addr_decoder U_ADDR_DECODER (
         .en   (decode_en),
-        .addr (addr),
+        .addr (paddr),
         .psel0(psel0),      // RAM
         .psel1(psel1),      // GPO
         .psel2(psel2),      // GPI
@@ -128,7 +125,7 @@ module apb_master (
     );
 
     apb_mux U_APB_MUX (
-        .sel    (addr),
+        .sel    (paddr),
         .prdata0(prdata0),
         .prdata1(prdata1),
         .prdata2(prdata2),
@@ -144,6 +141,8 @@ module apb_master (
         .rdata  (rdata),
         .ready  (ready)
     );
+    // assign ready = (c_state == ACCESS) && ready;
+
 endmodule
 
 module addr_decoder (

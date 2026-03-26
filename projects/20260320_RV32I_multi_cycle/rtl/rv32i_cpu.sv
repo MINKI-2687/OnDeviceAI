@@ -92,7 +92,7 @@ module control_unit (
             end
             EXECUTE: begin
                 case (opcode)
-                    `R_TYPE, `I_TYPE, `B_TYPE, `UPC_TYPE, `J_TYPE, `JL_TYPE:
+                    `R_TYPE, `I_TYPE, `B_TYPE, `U_TYPE, `UPC_TYPE, `J_TYPE, `JL_TYPE:
                     n_state = FETCH;
                     `S_TYPE, `IL_TYPE: n_state = MEM;
                 endcase
@@ -102,11 +102,13 @@ module control_unit (
                     `S_TYPE: begin
                         if (ready) n_state = FETCH;
                     end
-                    `IL_TYPE: n_state = WB;
+                    `IL_TYPE: begin
+                        if (ready) n_state = WB;
+                    end
                 endcase
             end
             WB: begin
-                if (ready) n_state = FETCH;
+                n_state = FETCH;
             end
         endcase
     end
@@ -177,13 +179,16 @@ module control_unit (
             end
             MEM: begin
                 o_funct3 = funct3;
-                if (opcode == `S_TYPE) dwe = 1'b1;
+                if (opcode == `S_TYPE) begin
+                    dwe = 1'b1;
+                end else if (opcode == `IL_TYPE) begin
+                    dre = 1'b1;
+                end
             end
             WB: begin
                 // IL type
                 rf_we       = 1'b1;  // next state FETCH
                 rfwd_srcsel = 3'd1;
-                dre         = 1'b1;
             end
         endcase
     end
