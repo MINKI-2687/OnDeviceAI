@@ -3,7 +3,9 @@
 module rv32i_mcu (
     input         clk,
     input         rst,
-    output [15:0] led
+    input  [ 7:0] gpi,
+    output [ 7:0] gpo,
+    inout  [15:0] gpio
 );
     logic [2:0] o_funct3;
     logic [31:0] instr_addr, instr_data, bus_addr, bus_wdata, bus_rdata;
@@ -70,7 +72,7 @@ module rv32i_mcu (
         //--------------------------------------
     );
 
-    BRAM U_BRAM (
+    APB_BRAM U_BRAM (
         .*,
         .pclk  (clk),
         .psel  (psel0),
@@ -83,7 +85,7 @@ module rv32i_mcu (
     //     .i_funct3(o_funct3)
     // );
 
-    GPO U_GPO (
+    APB_GPO U_GPO (
         .pclk   (clk),
         .preset (rst),
         .paddr  (paddr),
@@ -93,7 +95,33 @@ module rv32i_mcu (
         .psel   (psel1),
         .pready (pready1),
         .prdata (prdata1),
-        .gpo_out(led)
+        .gpo_out(gpo)
+    );
+
+    APB_GPI U_GPI (
+        .pclk   (clk),
+        .preset (rst),
+        .gpi_in (gpi),
+        .paddr  (paddr),
+        .pwdata (pwdata),
+        .pwrite (pwrite),
+        .penable(penable),
+        .psel   (psel2),
+        .pready (pready2),
+        .prdata (prdata2)
+    );
+
+    APB_GPIO U_APB_GPIO (
+        .pclk   (clk),
+        .preset (rst),
+        .paddr  (paddr),
+        .pwdata (pwdata),
+        .pwrite (pwrite),
+        .penable(penable),
+        .psel   (psel3),
+        .pready (pready3),
+        .prdata (prdata3),
+        .gpio   (gpio)
     );
 
 

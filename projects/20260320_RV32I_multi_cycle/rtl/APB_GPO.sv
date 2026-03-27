@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module GPO (
+module APB_GPO (
     input               pclk,
     input               preset,
     input        [31:0] paddr,

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module BRAM (
+module APB_BRAM (
     // BUS Global signal
     input               pclk,
     // APB Interface Signal

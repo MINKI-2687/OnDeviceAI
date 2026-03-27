@@ -5,13 +5,14 @@ module instruction_mem (
     output [31:0] instr_data
 );
     // 명령어 저장을 위한 rom
-    logic [31:0] rom[0:127];
+    logic [31:0] rom[0:255];
 
     initial begin
         //$readmemh("riscv_rv32i_rom_data.mem", rom);
         //$readmemh("U_APB_BRAM.mem", rom);
         //$readmemh("APB_GPO.mem", rom);
-        $readmemh("APB_BRAM_GPO_GPI.mem", rom);
+        //$readmemh("APB_BRAM_GPO_GPI.mem", rom);
+        $readmemh("APB_GPIO_LED_BLINK.mem", rom);
         //// R-type
         //rom[0]  = 32'h0041_82b3;  // ADD x5, x3, x4
         //rom[1]  = 32'h4041_82b3;  // SUB x5, x3, x4

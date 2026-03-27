@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module GPI (
+module APB_GPI (
     input               pclk,
     input               preset,
     input        [15:0] gpi_in,
@@ -26,13 +26,15 @@ module GPI (
 
     always_ff @(posedge pclk, posedge preset) begin
         if (preset) begin
-            gpi_ctrl_reg  <= 16'd0;
-            gpi_idata_reg <= 16'd0;
+            gpi_ctrl_reg <= 16'd0;
+            // gpi_idata_reg <= 16'd0;
         end else begin
+            //  for (int i = 0; i < 16; i++) begin
+            //      gpi_idata_reg[i] <= (gpi_ctrl_reg[i]) ? gpi_in[i] : 1'bz;
+            //  end
             if (pready & pwrite) begin
                 case (paddr[11:0])
-                    GPI_CTRL_ADDR:  gpi_ctrl_reg <= pwdata[15:0];
-                    GPI_IDATA_ADDR: gpi_idata_reg <= pwdata[15:0];
+                    GPI_CTRL_ADDR: gpi_ctrl_reg <= pwdata[15:0];
                 endcase
             end
         end
@@ -41,12 +43,8 @@ module GPI (
     genvar i;
     generate
         for (i = 0; i < 16; i++) begin
-            assign gpi_out[i] = (gpi_ctrl_reg[i]) ? gpi_idata_reg[i] : 1'bz;
+            assign gpi_idata_reg[i] = (gpi_ctrl_reg[i]) ? gpi_in[i] : 1'bz;
         end
     endgenerate
 
-
-
 endmodule
-
-

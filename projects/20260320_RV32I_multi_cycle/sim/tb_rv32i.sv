@@ -3,22 +3,24 @@
 module tb_rv32i ();
 
     logic clk, rst;
-    logic led;
-    rv32i_mcu dut (
-        .*,
-        .led(led)
-    );
+    logic [ 7:0] gpi;
+    wire  [ 7:0] gpo;
+    wire  [15:0] gpio;
+
+    rv32i_mcu dut (.*);
 
     always #5 clk = ~clk;
 
     initial begin
         clk = 0;
         rst = 1;
-
+        gpi = 8'h00;
         @(negedge clk);
         @(negedge clk);
         rst = 0;
 
+        gpi = 8'haa;
+        repeat (1100) @(negedge clk);
         repeat (1100) @(negedge clk);
         $stop;
     end
