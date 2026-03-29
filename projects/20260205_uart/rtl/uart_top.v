@@ -8,7 +8,6 @@ module uart_top (
     output [7:0] rx_data,
     output       rx_done
 );
-
     wire w_b_tick;
 
     uart_rx U_UART_RX (
@@ -36,7 +35,6 @@ module uart_top (
         .rst   (rst),
         .b_tick(w_b_tick)
     );
-
 endmodule
 
 module uart_rx (
@@ -47,7 +45,6 @@ module uart_rx (
     output [7:0] rx_data,
     output       rx_done
 );
-
     localparam IDLE = 2'd0, START = 2'd1, DATA = 2'd2, STOP = 2'd3;
 
     reg [1:0] c_state, n_state;
@@ -129,9 +126,7 @@ module uart_rx (
                 end
             end
         endcase
-
     end
-
 endmodule
 
 module uart_tx (
@@ -144,7 +139,6 @@ module uart_tx (
     output       tx_done,
     output       uart_tx
 );
-
     localparam IDLE = 2'd0, START = 2'd1;
     localparam DATA = 2'd2, STOP = 2'd3;
 
@@ -255,7 +249,6 @@ module uart_tx (
             end
         endcase
     end
-
 endmodule
 
 module baud_tick (
@@ -263,10 +256,8 @@ module baud_tick (
     input      rst,
     output reg b_tick
 );
-
     parameter BAUDRATE = 9600 * 16;
     parameter F_COUNT = 100_000_000 / BAUDRATE;
-
     // reg for counter
     reg [$clog2(F_COUNT)-1:0] counter_reg;
 
@@ -284,5 +275,4 @@ module baud_tick (
             end
         end
     end
-
 endmodule

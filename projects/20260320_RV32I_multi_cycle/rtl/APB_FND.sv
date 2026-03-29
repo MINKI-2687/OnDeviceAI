@@ -1,5 +1,53 @@
 `timescale 1ns / 1ps
 
+module APB_FND (
+    input               pclk,
+    input               preset,
+    input        [31:0] paddr,
+    input        [31:0] pwdata,
+    input               pwrite,
+    input               penable,
+    input               psel,
+    output logic [31:0] prdata,
+    output logic        pready,
+    output logic [ 3:0] o_fnd_digit,
+    output logic [ 7:0] o_fnd_data
+);
+
+    localparam [11:0] FND_CTRL_ADDR = 12'h000;
+    localparam [11:0] FND_ODATA_ADDR = 12'h004;
+
+    logic [15:0] fnd_odata_reg, fnd_ctrl_reg;
+
+    assign pready = (penable & psel) ? 1'b1 : 1'b0;
+
+    assign prdata  = (paddr[11:0] == FND_CTRL_ADDR)  ? {16'h0000, fnd_ctrl_reg}  : 
+                     (paddr[11:0] == FND_ODATA_ADDR) ? {16'h0000, fnd_odata_reg} : 
+                     32'hxxxx_xxxx;
+
+    always_ff @(posedge pclk, posedge preset) begin
+        if (preset) begin
+            fnd_ctrl_reg  <= 16'd0;
+            fnd_odata_reg <= 16'd0;
+        end else begin
+            if (pready & pwrite) begin
+                case (paddr[11:0])
+                    FND_CTRL_ADDR:  fnd_ctrl_reg <= pwdata[15:0];
+                    FND_ODATA_ADDR: fnd_odata_reg <= pwdata[15:0];
+                endcase
+            end
+        end
+    end
+
+    fnd_controller U_FND_CTRL (
+        .clk        (pclk),
+        .reset      (preset),
+        .fnd_in_data(fnd_odata_reg[13:0]),
+        .fnd_digit  (o_fnd_digit),
+        .fnd_data   (o_fnd_data)
+    );
+endmodule
+
 module fnd_controller (
     input         clk,
     input         reset,
@@ -7,7 +55,6 @@ module fnd_controller (
     output [ 3:0] fnd_digit,
     output [ 7:0] fnd_data
 );
-
     wire [3:0] w_digit_1, w_digit_10, w_digit_100, w_digit_1000, w_mux_4x1_out;
     wire [1:0] w_digit_sel;
     wire w_1khz;
@@ -26,8 +73,9 @@ module fnd_controller (
         .o_1khz(w_1khz)
     );
     counter_4 U_COUNTER_4 (
-        .clk      (w_1khz),
+        .clk      (clk),
         .reset    (reset),
+        .en_1khz  (w_1khz),
         .digit_sel(w_digit_sel)
     );
 
@@ -79,6 +127,7 @@ endmodule
 module counter_4 (
     input        clk,
     input        reset,
+    input        en_1khz,
     output [1:0] digit_sel
 );
 
@@ -89,7 +138,7 @@ module counter_4 (
     always @(posedge clk, posedge reset) begin
         if (reset) begin
             counter_r <= 0;  // init counter_r
-        end else begin
+        end else if (en_1khz) begin
             // to do
             counter_r <= counter_r + 1;
         end

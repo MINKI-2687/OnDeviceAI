@@ -47,7 +47,6 @@ module apb_master (
     output logic        psel5     // UART
     //--------------------------------------
 );
-
     typedef enum {
         IDLE,
         SETUP,
@@ -141,8 +140,6 @@ module apb_master (
         .rdata  (rdata),
         .ready  (ready)
     );
-    // assign ready = (c_state == ACCESS) && ready;
-
 endmodule
 
 module addr_decoder (
@@ -155,7 +152,6 @@ module addr_decoder (
     output logic        psel4,  // fnd
     output logic        psel5   // uart
 );
-
     always_comb begin
         // IDLE : 0
         psel0 = 1'b0;
@@ -179,12 +175,6 @@ module addr_decoder (
             endcase
         end
     end
-    // assign psel0 = (addr[31:28] == 4'h1);  // ram
-    // assign psel1 = ((addr[31:28] == 4'h2) && (addr[15:12] == 4'h0));  // gpo
-    // assign psel2 = ((addr[31:28] == 4'h2) && (addr[15:12] == 4'h1));  // gpi
-    // assign psel3 = ((addr[31:28] == 4'h2) && (addr[15:12] == 4'h2));  // gpio
-    // assign psel4 = ((addr[31:28] == 4'h2) && (addr[15:12] == 4'h3));  // fnd
-    // assign psel5 = ((addr[31:28] == 4'h2) && (addr[15:12] == 4'h4));  // uart
 endmodule
 
 module apb_mux (
@@ -204,7 +194,6 @@ module apb_mux (
     output logic [31:0] rdata,
     output logic        ready
 );
-
     always_comb begin
         // IDLE : 0
         rdata = 32'h0000_0000;

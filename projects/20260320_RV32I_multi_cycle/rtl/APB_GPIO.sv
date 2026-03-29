@@ -62,7 +62,7 @@ module gpio (
     genvar i;
     generate
         for (i = 0; i < 16; i++) begin
-            assign gpio[i]   = (ctrl[i]) ? o_data : 1'bz;
+            assign gpio[i]   = (ctrl[i]) ? o_data[i] : 1'bz;
             assign i_data[i] = (~ctrl[i]) ? gpio[i] : 1'bz;
         end
     endgenerate

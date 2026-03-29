@@ -3,9 +3,16 @@
 module rv32i_mcu (
     input         clk,
     input         rst,
+    // gpi, gpo, gpio
     input  [ 7:0] gpi,
     output [ 7:0] gpo,
-    inout  [15:0] gpio
+    inout  [15:0] gpio,
+    // fnd
+    output [ 3:0] fnd_digit,
+    output [ 7:0] fnd_data,
+    // uart
+    input         uart_rx,
+    output        uart_tx
 );
     logic [2:0] o_funct3;
     logic [31:0] instr_addr, instr_data, bus_addr, bus_wdata, bus_rdata;
@@ -19,10 +26,7 @@ module rv32i_mcu (
 
     instruction_mem U_INSTRUCTION_MEM (.*);
 
-    rv32i_cpu U_RV32I (
-        .*,
-        .o_funct3(o_funct3)
-    );
+    rv32i_cpu U_RV32I (.*);
 
     apb_master U_APB_MASTER (
         .pclk   (clk),
@@ -72,7 +76,7 @@ module rv32i_mcu (
         //--------------------------------------
     );
 
-    APB_BRAM U_BRAM (
+    APB_BRAM U_APB_BRAM (
         .*,
         .pclk  (clk),
         .psel  (psel0),
@@ -80,12 +84,7 @@ module rv32i_mcu (
         .pready(pready0)
     );
 
-    // data_mem U_DATA_MEM (
-    //     .*,
-    //     .i_funct3(o_funct3)
-    // );
-
-    APB_GPO U_GPO (
+    APB_GPO U_APB_GPO (
         .pclk   (clk),
         .preset (rst),
         .paddr  (paddr),
@@ -98,7 +97,7 @@ module rv32i_mcu (
         .gpo_out(gpo)
     );
 
-    APB_GPI U_GPI (
+    APB_GPI U_APB_GPI (
         .pclk   (clk),
         .preset (rst),
         .gpi_in (gpi),
@@ -124,5 +123,37 @@ module rv32i_mcu (
         .gpio   (gpio)
     );
 
+    APB_FND U_APB_FND (
+        .pclk       (clk),
+        .preset     (rst),
+        .paddr      (paddr),
+        .pwdata     (pwdata),
+        .pwrite     (pwrite),
+        .penable    (penable),
+        .psel       (psel4),
+        .prdata     (prdata4),
+        .pready     (pready4),
+        .o_fnd_digit(fnd_digit),
+        .o_fnd_data (fnd_data)
+    );
 
+    APB_UART U_APB_UART (
+        .pclk   (clk),
+        .preset (rst),
+        .paddr  (paddr),
+        .pwdata (pwdata),
+        .pwrite (pwrite),
+        .penable(penable),
+        .psel   (psel5),
+        .uart_rx(uart_rx),
+        .prdata (prdata5),
+        .pready (pready5),
+        .uart_tx(uart_tx)
+    );
+
+
+    // data_mem U_DATA_MEM (
+    //     .*,
+    //     .i_funct3(o_funct3)
+    // );
 endmodule
