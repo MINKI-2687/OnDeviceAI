@@ -113,7 +113,7 @@ module clk_div (
             counter_r <= 0;
             o_1khz    <= 1'b0;
         end else begin
-            if (counter_r == 99999) begin
+            if (counter_r == 9) begin
                 counter_r <= 0;
                 o_1khz    <= 1'b1;
             end else begin

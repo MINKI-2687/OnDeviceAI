@@ -11,8 +11,12 @@ module instruction_mem (
         //$readmemh("riscv_rv32i_rom_data.mem", rom);
         //$readmemh("U_APB_BRAM.mem", rom);
         //$readmemh("APB_GPO.mem", rom);
+        //$readmemh("APB_GPI_GPO.mem", rom);
         //$readmemh("APB_BRAM_GPO_GPI.mem", rom);
-        $readmemh("APB_GPIO_LED_BLINK.mem", rom);
+        //$readmemh("APB_GPIO_LED_BLINK.mem", rom);
+        $readmemh("APB_FND.mem", rom);
+        //$readmemh("APB_UART.mem", rom);
+        //$readmemh("APB_FINAL.mem", rom);
         //// R-type
         //rom[0]  = 32'h0041_82b3;  // ADD x5, x3, x4
         //rom[1]  = 32'h4041_82b3;  // SUB x5, x3, x4

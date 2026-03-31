@@ -19,22 +19,20 @@ module APB_GPIO (
     localparam [11:0] GPIO_ODATA_ADDR = 12'h004;
     localparam [11:0] GPIO_IDATA_ADDR = 12'h008;
     logic [15:0] gpio_ctrl_reg, gpio_idata_reg, gpio_odata_reg;
-    //logic [15:0] w_gpi;
 
     assign pready = (penable & psel) ? 1'b1 : 1'b0;
 
-    assign prdata  = (paddr[11:0] == GPIO_CTRL_ADDR)  ? {16'h0000, gpio_ctrl_reg}  : 
+    assign prdata  = (psel && ~pwrite) ? (
+                     (paddr[11:0] == GPIO_CTRL_ADDR)  ? {16'h0000, gpio_ctrl_reg}  : 
                      (paddr[11:0] == GPIO_ODATA_ADDR) ? {16'h0000, gpio_odata_reg} : 
                      (paddr[11:0] == GPIO_IDATA_ADDR) ? {16'h0000, gpio_idata_reg} :
-                     32'hxxxx_xxxx;
+                     32'h0000_0000) : 32'h0000_0000;
 
     always_ff @(posedge pclk, posedge preset) begin
         if (preset) begin
             gpio_ctrl_reg  <= 16'd0;
             gpio_odata_reg <= 16'd0;
-            //      gpio_idata_reg <= 16'd0;
         end else begin
-            //      gpio_idata_reg <= w_gpi;
             if (pready & pwrite) begin
                 case (paddr[11:0])
                     GPIO_CTRL_ADDR:  gpio_ctrl_reg <= pwdata[15:0];
@@ -50,7 +48,6 @@ module APB_GPIO (
         .i_data(gpio_idata_reg),
         .gpio  (gpio)
     );
-
 endmodule
 
 module gpio (
@@ -63,7 +60,7 @@ module gpio (
     generate
         for (i = 0; i < 16; i++) begin
             assign gpio[i]   = (ctrl[i]) ? o_data[i] : 1'bz;
-            assign i_data[i] = (~ctrl[i]) ? gpio[i] : 1'bz;
+            assign i_data[i] = (~ctrl[i]) ? gpio[i] : 1'b0;
         end
     endgenerate
 endmodule

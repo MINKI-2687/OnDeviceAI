@@ -20,9 +20,10 @@ module APB_GPI (
 
     assign pready = (penable & psel) ? 1'b1 : 1'b0;
 
-    assign prdata  = (paddr[11:0] == GPI_CTRL_ADDR)  ? {16'h0000, gpi_ctrl_reg}  : 
+    assign prdata  = (psel & ~pwrite) ? (
+                     (paddr[11:0] == GPI_CTRL_ADDR)  ? {16'h0000, gpi_ctrl_reg}  : 
                      (paddr[11:0] == GPI_IDATA_ADDR) ? {16'h0000, gpi_idata_reg} : 
-                     32'hxxxx_xxxx;
+                     32'hxxxx_xxxx) : 32'h0000_0000;
 
     always_ff @(posedge pclk, posedge preset) begin
         if (preset) begin
@@ -43,8 +44,7 @@ module APB_GPI (
     genvar i;
     generate
         for (i = 0; i < 16; i++) begin
-            assign gpi_idata_reg[i] = (gpi_ctrl_reg[i]) ? gpi_in[i] : 1'bz;
+            assign gpi_idata_reg[i] = (gpi_ctrl_reg[i]) ? gpi_in[i] : 1'b0;
         end
     endgenerate
-
 endmodule

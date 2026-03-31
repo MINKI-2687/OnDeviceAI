@@ -41,7 +41,7 @@ module APB_GPO (
     genvar i;
     generate
         for (i = 0; i < 16; i++) begin
-            assign gpo_out[i] = (gpo_ctrl_reg[i]) ? gpo_odata_reg[i] : 1'bz;
+            assign gpo_out[i] = (gpo_ctrl_reg[i]) ? gpo_odata_reg[i] : 1'b0;
         end
     endgenerate
 

@@ -20,49 +20,76 @@ module APB_UART (
     localparam [11:0] UART_TX_DATA_ADDR = 12'h00c;
     localparam [11:0] UART_RX_DATA_ADDR = 12'h010;
 
-    logic uart_ctrl_reg;
+    // --- 레지스터 선언 ---
+    logic       uart_ctrl_reg;
     logic [1:0] uart_baud_reg;
     logic [7:0] uart_tx_data_reg;
-    logic tx_busy, rx_done;
-    logic [7:0] rx_data;
 
+    // 수신 데이터를 보관할 버퍼와 상태 플래그
+    logic [7:0] rx_data_reg;
+    logic       rx_ready_flag;
+
+    // 내부 와이어
+    logic tx_busy, rx_done;
+    logic [7:0] rx_data_wire;  // 모듈에서 나오는 생(Live) 데이터
     logic [9:0] baudrate_sel;
     logic b_tick;
 
     assign pready = (penable & psel) ? 1'b1 : 1'b0;
-    assign prdata = (paddr[11:0] == UART_CTRL_ADDR)    ? {31'd0, uart_ctrl_reg}    : 
-                    (paddr[11:0] == UART_BAUD_ADDR)    ? {30'd0, uart_baud_reg}    : 
-                    (paddr[11:0] == UART_STATUS_ADDR)  ? {rx_done, 30'd0, tx_busy} : 
-                    (paddr[11:0] == UART_TX_DATA_ADDR) ? {24'd0, uart_tx_data_reg} : 
-                    (paddr[11:0] == UART_RX_DATA_ADDR) ? {24'd0, rx_data}          : 
+
+    // --- PRDATA 출력 MUX (상태 비트 위치 수정) ---
+    assign prdata = (paddr[11:0] == UART_CTRL_ADDR)    ? {31'd0, uart_ctrl_reg} : 
+                    (paddr[11:0] == UART_BAUD_ADDR)    ? {30'd0, uart_baud_reg} :
+                    (paddr[11:0] == UART_STATUS_ADDR)  ? {rx_ready_flag, 30'd0, tx_busy} : 
+                    (paddr[11:0] == UART_TX_DATA_ADDR) ? {24'd0, uart_tx_data_reg} :
+                    (paddr[11:0] == UART_RX_DATA_ADDR) ? {24'd0, rx_data_reg} : 
                     32'hxxxx_xxxx;
 
-    // baudrate select
+    // Baudrate Select (기존 유지)
     always_comb begin
         case (uart_baud_reg[1:0])
-            2'b00: baudrate_sel = 10'd650;  // 9600 * 16
-            2'b01: baudrate_sel = 10'd324;  // 19200 * 16
-            2'b10: baudrate_sel = 10'd107;  // 57600 * 16
-            2'b11: baudrate_sel = 10'd53;  // 115200 * 16
+            2'b00: baudrate_sel = 10'd650;  // 9600
+            2'b01: baudrate_sel = 10'd324;  // 19200
+            2'b10: baudrate_sel = 10'd107;  // 57600
+            2'b11: baudrate_sel = 10'd53;  // 115200
         endcase
     end
 
+    // --- 메인 제어 로직 ---
     always_ff @(posedge pclk, posedge preset) begin
         if (preset) begin
             uart_ctrl_reg    <= 1'd0;
             uart_baud_reg    <= 2'd0;
             uart_tx_data_reg <= 8'd0;
+            rx_data_reg      <= 8'd0;
+            rx_ready_flag    <= 1'b0;
         end else begin
+            // 1. RX 데이터 캡처 및 플래그 세팅
+            if (rx_done) begin
+                rx_data_reg   <= rx_data_wire; // 수신 완료 시점에 데이터를 버퍼에 박제
+                rx_ready_flag <= 1'b1;         // CPU가 읽어갈 때까지 깃발 올림
+            end
+
+            // 2. Clear-on-Read: CPU가 RX 데이터를 읽어가면 플래그 내림
+            if (psel && penable && !pwrite && (paddr[11:0] == UART_RX_DATA_ADDR)) begin
+                rx_ready_flag <= 1'b0;
+            end
+
+            // 3. APB Write 동작
             if (pready & pwrite) begin
                 case (paddr[11:0])
                     UART_CTRL_ADDR:    uart_ctrl_reg    <= pwdata[0];
                     UART_BAUD_ADDR:    uart_baud_reg    <= pwdata[1:0];
                     UART_TX_DATA_ADDR: uart_tx_data_reg <= pwdata[7:0];
                 endcase
+            end else begin
+                // tx_start를 1클럭 펄스로 만들어 전송이 반복되는 걸 방지
+                uart_ctrl_reg <= 1'b0;
             end
         end
     end
 
+    // --- 모듈 인스턴스 ---
     uart_tx U_UART_TX (
         .clk     (pclk),
         .rst     (preset),
@@ -79,7 +106,7 @@ module APB_UART (
         .rst    (preset),
         .uart_rx(uart_rx),
         .b_tick (b_tick),
-        .rx_data(rx_data),
+        .rx_data(rx_data_wire),  // 내부 와이어에 연결
         .rx_done(rx_done)
     );
 
