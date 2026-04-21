@@ -113,7 +113,6 @@ module spi_master (
                                 if (!cpha) begin
                                     rx_data <= rx_shift_reg;
                                 end else begin
-                                    //rx_data <= rx_shift_reg;
                                     rx_data <= {rx_shift_reg[6:0], miso};
                                 end
                             end else begin

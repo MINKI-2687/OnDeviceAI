@@ -6,7 +6,6 @@ module btn_debounce (
     input  i_btn,
     output o_btn
 );
-
     // clock divider for debounce shift register
     // 100Mhz -> 100Khz
     // counter = 100M/100K = 1000
@@ -38,14 +37,13 @@ module btn_debounce (
     wire debounce;
 
     // SL
-    always @(posedge clk_100khz_reg, posedge reset) begin
+    always @(posedge clk, posedge reset) begin
         if (reset) begin
-            //debounce_reg <= 0;
             q_reg <= 0;
         end else begin
-            // shift register operation
-            q_reg <= q_next;
-            //debounce_reg <= {i_btn, debounce_reg[7:1]} // bit shift
+            if (clk_100khz_reg == 1'b1) begin 
+                q_reg <= q_next;
+            end
         end
     end
 
