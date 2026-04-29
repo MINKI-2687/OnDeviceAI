@@ -101,3 +101,9 @@ timestamp=[2026-04-28 21:40:05], mode=BUILD, duration=0:00:00.680, duration_ms=6
 timestamp=[2026-04-28 21:41:10], mode=BUILD, duration=0:00:00.620, duration_ms=620, data={name=fnd_upcounter, configuration=Debug, clean_build=false}
 timestamp=[2026-04-28 21:42:43], mode=BUILD, duration=0:00:00.686, duration_ms=686, data={name=fnd_upcounter, configuration=Debug, clean_build=false}
 timestamp=[2026-04-28 21:42:44], mode=BUILD, duration=0:00:00.117, duration_ms=117, data={name=fnd_upcounter_system, configuration=Debug, clean_build=false}
+timestamp=[2026-04-29 09:56:44], mode=WORKBENCH_START, duration=0:00:05.015, duration_ms=5015, data={}
+timestamp=[2026-04-29 09:56:44], mode=WORKBENCH_UI_INIT, duration=0:00:00.537, duration_ms=537, data={editors_count=7, platform_editors_count=0, projects_count=1, platform_projects_count=0, active_platform_editor=false, projects=RemoteSystemsTempFiles}
+timestamp=[2026-04-29 09:56:47], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:02.241, duration_ms=2241, data={}
+timestamp=[2026-04-29 09:57:21], mode=WORKBENCH_START, duration=0:00:06.643, duration_ms=6643, data={}
+timestamp=[2026-04-29 09:57:22], mode=WORKBENCH_UI_INIT, duration=0:00:00.639, duration_ms=639, data={editors_count=7, platform_editors_count=0, projects_count=1, platform_projects_count=0, active_platform_editor=false, projects=RemoteSystemsTempFiles}
+timestamp=[2026-04-29 09:57:24], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:02.359, duration_ms=2359, data={}
