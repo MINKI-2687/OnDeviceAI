@@ -1,0 +1,25 @@
+src/platform.o src/platform.o: ../src/platform.c \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xparameters.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_cache.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/mb_interface.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_types.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_assert.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_exception.h \
+ D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xparameters.h \
+ ../src/platform_config.h
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xparameters.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_cache.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/mb_interface.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_types.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_assert.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xil_exception.h:
+
+D:/kmk/OnDeviceAI_Git/projects/260422_AXI_GPIO/vitis_workspace/MicroBlaze_GPIO_design_1_wrapper/export/MicroBlaze_GPIO_design_1_wrapper/sw/MicroBlaze_GPIO_design_1_wrapper/standalone_microblaze_0/bspinclude/include/xparameters.h:
+
+../src/platform_config.h:
