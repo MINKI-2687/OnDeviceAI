@@ -1,0 +1,6 @@
+/*microblaze_gpio8*/
+the_ROM_image:
+{
+   <bitstream> 
+   <elf> 
+}
