@@ -1,0 +1,99 @@
+#include <stdint.h>
+#include "xparameters.h"
+#include "sleep.h"
+#include "xil_printf.h"
+
+// ---------------------------------------------------------
+// 1. 하드웨어 레지스터 맵핑
+// (※ 주의: xparameters.h를 열어서 본인의 이름과 똑같은지 확인하세요!)
+// ---------------------------------------------------------
+#define LED_BASEADDR  XPAR_GPIO_0_S00_AXI_BASEADDR
+#define BTN_BASEADDR  XPAR_GPIO_2_S00_AXI_BASEADDR // 버튼이 GPIO_2일 경우
+#define FND_BASEADDR  XPAR_FND_CONTROLLER_AXI_0_S00_AXI_BASEADDR
+
+// LED GPIO Registers (Xilinx 구조: DATA가 0x00, TRI가 0x04)
+#define LED_DATA 	(*(volatile uint32_t *)(LED_BASEADDR + 0x00))
+#define LED_TRI 	(*(volatile uint32_t *)(LED_BASEADDR + 0x04))
+
+// Button GPIO Registers
+#define BTN_DATA 	(*(volatile uint32_t *)(BTN_BASEADDR + 0x00))
+#define BTN_TRI 	(*(volatile uint32_t *)(BTN_BASEADDR + 0x04))
+
+// Custom FND IP Registers
+#define FND_REG3    (*(volatile uint32_t *)(FND_BASEADDR + 0x0C)) // 스톱워치 출력용 빈방
+
+// ---------------------------------------------------------
+// 2. 버튼 비트마스크 & 상태 정의 (XDC 할당 기준)
+// ---------------------------------------------------------
+#define BTN_CLEAR      (1 << 0)  // UP 버튼
+#define BTN_STOP       (1 << 1)  // LEFT 버튼
+#define BTN_RUN        (1 << 2)  // RIGHT 버튼
+
+#define STATE_STOPPED  0
+#define STATE_RUNNING  1
+
+int main()
+{
+    int count = 0;
+    int state = STATE_STOPPED;
+    uint32_t btn_val = 0;
+    uint32_t loop_counter = 0;
+
+    // 1. 하드웨어 방향 초기화 (TRI 레지스터: 0=Output, 1=Input)
+    LED_TRI = 0x00000000; // LED 모두 출력
+    BTN_TRI = 0xFFFFFFFF; // Button 모두 입력
+
+    // 초기 상태 셋업
+    LED_DATA = 0x00;
+    FND_REG3 = count;
+
+    xil_printf("--- Clean Slate Stopwatch Started ---\n");
+
+    // 2. 메인 무한 루프
+    while (1)
+    {
+        // [A] 버튼 입력 읽기
+        btn_val = BTN_DATA;
+
+        // [B] 상태 머신 업데이트 (우우선순위: Clear > Stop > Run)
+        if (btn_val & BTN_CLEAR) {
+            state = STATE_STOPPED;
+            count = 0;
+            xil_printf("State: CLEAR\n");
+            usleep(200000); // 디바운싱
+        }
+        else if (btn_val & BTN_STOP) {
+            state = STATE_STOPPED;
+            xil_printf("State: STOP\n");
+            usleep(200000);
+        }
+        else if (btn_val & BTN_RUN) {
+            state = STATE_RUNNING;
+            xil_printf("State: RUN\n");
+            usleep(200000);
+        }
+
+        // [C] 카운트 로직 업데이트
+        if (state == STATE_RUNNING) {
+            count++;
+            if (count > 9999) count = 0;
+        }
+
+        // [D] 하드웨어 가속기(FND IP)로 데이터 전송
+        FND_REG3 = count;
+
+        // [E] 작동 확인용 LED 점멸 (Heartbeat)
+        loop_counter++;
+        if (loop_counter % 10 == 0) { // 10번(100ms)마다 갱신
+            if (state == STATE_STOPPED) {
+                LED_DATA ^= 0xFF; // 정지 시 전체 깜빡임
+            } else {
+                LED_DATA = count & 0xFF; // 실행 시 하위 8비트 점등
+            }
+        }
+
+        // [F] 시스템 지연
+        usleep(10000); // 10ms 단위 (10ms * 100번 = 1초)
+    }
+    return 0;
+}

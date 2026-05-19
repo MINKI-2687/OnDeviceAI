@@ -96,34 +96,33 @@ module counter_4 (
     end
 endmodule
 
-//module digit_splitter (
-//    input  [15:0] in_data,
-//    output [ 3:0] digit_1,
-//    output [ 3:0] digit_10,
-//    output [ 3:0] digit_100,
-//    output [ 3:0] digit_1000
-//);
-//
-//    assign digit_1    = in_data % 10;
-//    assign digit_10   = (in_data / 10) % 10;
-//    assign digit_100  = (in_data / 100) % 10;
-//    assign digit_1000 = (in_data / 1000) % 10;
-//endmodule
 module digit_splitter (
     input  [15:0] in_data,
-    output [ 3:0] digit_1,   // 마스터 데이터 하위 4비트
-    output [ 3:0] digit_10,  // 마스터 데이터 상위 4비트
-    output [ 3:0] digit_100, // 슬레이브 데이터 하위 4비트
-    output [ 3:0] digit_1000 // 슬레이브 데이터 상위 4비트
+    output [ 3:0] digit_1,
+    output [ 3:0] digit_10,
+    output [ 3:0] digit_100,
+    output [ 3:0] digit_1000
 );
 
-    // 나누기 연산 없이 4비트씩 선을 그대로 연결해 줍니다.
-    assign digit_1    = in_data[3:0];
-    assign digit_10   = in_data[7:4];
-    assign digit_100  = in_data[11:8];
-    assign digit_1000 = in_data[15:12];
-
+    assign digit_1    = in_data % 10;
+    assign digit_10   = (in_data / 10) % 10;
+    assign digit_100  = (in_data / 100) % 10;
+    assign digit_1000 = (in_data / 1000) % 10;
 endmodule
+//module digit_splitter (
+//    input  [15:0] in_data,
+//    output [ 3:0] digit_1,   // 마스터 데이터 하위 4비트
+//    output [ 3:0] digit_10,  // 마스터 데이터 상위 4비트
+//    output [ 3:0] digit_100, // 슬레이브 데이터 하위 4비트
+//    output [ 3:0] digit_1000 // 슬레이브 데이터 상위 4비트
+//);
+//
+//    // 나누기 연산 없이 4비트씩 선을 그대로 연결해 줍니다.
+//    assign digit_1    = in_data[3:0];
+//    assign digit_10   = in_data[7:4];
+//    assign digit_100  = in_data[11:8];
+//    assign digit_1000 = in_data[15:12];
+//endmodule
 module decoder_2x4 (
     input      [1:0] digit_sel,
     output reg [3:0] decoder_out

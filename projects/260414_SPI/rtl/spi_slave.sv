@@ -82,10 +82,10 @@ module spi_slave (
                             bit_cnt <= bit_cnt + 1;
                         end
                     end else if (sclk_falling_edge) begin
-                        if (bit_cnt < 7) begin
+                        //if (bit_cnt < 7) begin
                             miso_r       <= tx_shift_reg[7];
                             tx_shift_reg <= {tx_shift_reg[6:0], 1'b0};
-                        end
+                        //end
                     end
                     if (cs_n_rising_edge) begin
                         state <= IDLE;

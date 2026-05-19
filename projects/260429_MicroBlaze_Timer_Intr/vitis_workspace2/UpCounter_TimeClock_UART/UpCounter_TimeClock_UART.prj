@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="UpCounter_TimeClock_UART" location="D:/kmk/OnDeviceAI_Git/projects/260429_MicroBlaze_Timer_Intr/vitis_workspace2/UpCounter_TimeClock_UART" platform="D:/kmk/OnDeviceAI_Git/projects/260429_MicroBlaze_Timer_Intr/vitis_workspace2/design_1_wrapper_uart/export/design_1_wrapper_uart/design_1_wrapper_uart.xpfm" platformUID="xilinx:basys3::0.0(custom)" systemProject="UpCounter_TimeClock_UART_system" sysConfig="design_1_wrapper_uart" runtime="cpp" cpu="standalone_microblaze_0" cpuInstance="microblaze_0" os="standalone" mssSignature="33266cd1270d469850d20f68dd84c6c7">
+  <configuration name="Debug" id="xilinx.gnu.mb.exe.debug.945990970">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+    <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <configuration name="Release" id="xilinx.gnu.mb.exe.release.1546630717" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <template appTemplateName="empty_application"/>
+</sdkproject:SdkProject>
